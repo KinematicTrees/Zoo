@@ -36,23 +36,43 @@ const [tree,p] = await KT.loadRobot(treePath,meshPath,[0.5,0.5,0.5])
 scene.add(tree.Root)
 
 
-var gui = new GUI( { title: 'Controls', width: 300 } );
-gui.domElement.id = 'gui';
-const API = {
-    angle: 0.0,
+const jointMap = new Map();
+for (let i = 0; i < tree.Joints.length; i++) {
+    if (tree.Joints[i].type === "revolute"){
+        console.log("yep addded",tree.Joints[i].name);
+        jointMap.set(tree.Joints[i].name,i)
+    }
 }
 
 let selection = -1
 
-gui.add( API, 'angle', -1, 1, 0.02 ).name('Angle').onChange( function () {
+var gui = new GUI( { title: 'Joint Control', width: 300 } );
+gui.domElement.id = 'gui';
+
+const API = {
+    angle: 0.0,
+}
+
+for (const [jointName, jointIndex] of jointMap.entries()) {
+    console.log(jointName, jointIndex)
+}
+
+
+gui.add(API, 'angle', -1, 1, 0.02).name("Selected").onChange(function () {
     if (selection !==-1) {
         if ( tree.Links[selection].ParentID !== -1) {
             tree.Joints[tree.Links[selection].ParentID].SetByUnitScaling(API.angle)
         }
     }
     render();
-
 });
+
+for (const [jointName, jointIndex] of jointMap.entries()) {
+    gui.add(API, 'angle', -1, 1, 0.02).name(jointName).onChange(function () {
+        tree.Joints[jointIndex].SetByUnitScaling(API.angle)
+        render();
+    });
+}
 
 
 // RAY-CASTING
