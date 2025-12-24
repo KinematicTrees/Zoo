@@ -29,10 +29,7 @@ directionalLight.target.position.set(0,0,0);
 scene.add( directionalLight );
 
 
-
-let x = document.body.getElementById("module-script")
-console.log( 'x', x );
-
+let robotPath = getPath()
 const [tree,p] = await KT.loadRobot(robotPath+"tree.json",robotPath,[0.5,0.5,0.5])
 scene.add(tree.Root)
 
