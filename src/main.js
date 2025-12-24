@@ -31,7 +31,7 @@ scene.add( directionalLight );
 
 let robotPath = getPath()
 console.log( 'robotPath: ', robotPath );
-const [tree,p] = await KT.loadRobot(robotPath+"tree.json",robotPath,[0.5,0.5,0.5])
+const [tree,p] = await KT.loadRobot("path1/tree.json","path1/",[0.5,0.5,0.5])
 scene.add(tree.Root)
 
 
