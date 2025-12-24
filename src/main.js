@@ -30,6 +30,9 @@ scene.add( directionalLight );
 
 
 
+let x = document.getElementById("module-script").dataset.json
+console.log( 'x', x );
+
 const [tree,p] = await KT.loadRobot(robotPath+"tree.json",robotPath,[0.5,0.5,0.5])
 scene.add(tree.Root)
 
