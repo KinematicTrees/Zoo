@@ -30,8 +30,8 @@ scene.add( directionalLight );
 
 
 // LOAD THE MODEL
-let treePath = "tree.json"
-let meshPath = ""
+let treePath = "page1/tree.json"
+let meshPath = "page1"
 const [tree,p] = await KT.loadRobot(treePath,meshPath,[0.5,0.5,0.5])
 scene.add(tree.Root)
 
