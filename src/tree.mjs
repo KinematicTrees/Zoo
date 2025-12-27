@@ -167,6 +167,7 @@ export function loadRobot(url,meshDir,color) {
                     }).then((mesh) => {
                         formatMesh(mesh,color,i)
                         tree.Links[i].origin.add(mesh.scene);
+                        tree.Root.add(mesh.scene)
                     })
                 )
             }
