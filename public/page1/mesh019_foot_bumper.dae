@@ -7,11 +7,12 @@
     </contributor>
     <created>2024-02-23T02:00:24</created>
     <modified>2024-02-23T02:00:24</modified>
+    <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
   <library_images/>
   <library_geometries>
-    <geometry id="Icosphere_001-mesh" name="position">
+    <geometry id="Icosphere_001-mesh" name="Icosphere.001">
       <mesh>
         <source id="Icosphere_001-mesh-positions">
           <float_array id="Icosphere_001-mesh-positions-array" count="126">0 0 -1 0.7236073 -0.5257253 -0.4472195 -0.276388 -0.8506492 -0.4472199 -0.8944262 0 -0.4472156 -0.276388 0.8506492 -0.4472199 0.7236073 0.5257253 -0.4472195 0.276388 -0.8506492 0.4472199 -0.7236073 -0.5257253 0.4472195 -0.7236073 0.5257253 0.4472195 0.276388 0.8506492 0.4472199 0.8944262 0 0.4472156 0 0 1 -0.1624555 -0.4999952 -0.8506544 0.4253227 -0.3090114 -0.8506542 0.2628688 -0.8090116 -0.5257377 0.8506479 0 -0.5257359 0.4253227 0.3090114 -0.8506542 -0.5257298 0 -0.8506517 -0.6881894 -0.4999969 -0.5257362 -0.1624555 0.4999952 -0.8506544 -0.6881894 0.4999969 -0.5257362 0.2628688 0.8090116 -0.5257377 0.9510579 -0.3090126 0 0.9510579 0.3090126 0 0 -1 0 0.5877856 -0.8090167 0 -0.9510579 -0.3090126 0 -0.5877856 -0.8090167 0 -0.5877856 0.8090167 0 -0.9510579 0.3090126 0 0.5877856 0.8090167 0 0 1 0 0.6881894 -0.4999969 0.5257362 -0.2628688 -0.8090116 0.5257377 -0.8506479 0 0.5257359 -0.2628688 0.8090116 0.5257377 0.6881894 0.4999969 0.5257362 0.1624555 -0.4999952 0.8506544 0.5257298 0 0.8506517 -0.4253227 -0.3090114 0.8506542 -0.4253227 0.3090114 0.8506542 0.1624555 0.4999952 0.8506544</float_array>
@@ -56,15 +57,15 @@
   </library_geometries>
   <library_visual_scenes>
   <visual_scene id="Scene" name="Scene">
-    <node id="Icosphere" name="Icosphere" type="NODE">
+    <node id="Icosphere1" name="Icosphere1" type="NODE">
       <matrix sid="transform">0.022 0 0 0 0 0.022 0 0 0 0 0.022 0 0 0 0 1</matrix>
-      <instance_geometry url="#Icosphere_001-mesh" name="Icosphere"></instance_geometry>
+      <instance_geometry url="#Icosphere_001-mesh" name="Icosphere1"></instance_geometry>
     </node>
   </visual_scene>
   <visual_scene id="Scene" name="Scene">
     <node id="Icosphere" name="Icosphere" type="NODE">
       <matrix sid="transform">0.022 0 0 0 0 0.022 0 0 0 0 0.022 0 0 0 0 1</matrix>
-      <instance_geometry url="#Icosphere_001-mesh" name="Icosphere"></instance_geometry>
+      <instance_geometry url="#Icosphere_001-mesh" name="Icosphere1"></instance_geometry>
     </node>
   </visual_scene>
 </library_visual_scenes>
