@@ -193,7 +193,7 @@ function formatMesh(mesh,color,id){
             o.userData.index = id
             o.material = o.userData.resetMaterial;
             o.material = mat;
-            //o.geometry.computeVertexNormals();
+            o.geometry.computeVertexNormals();
         }
     });
     mesh.scene.rotateX(Math.PI/2);
