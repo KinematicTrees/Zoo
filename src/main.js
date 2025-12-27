@@ -37,7 +37,6 @@ scene.add(tree.Root)
 const jointMap = new Map();
 for (let i = 0; i < tree.Joints.length; i++) {
     if (tree.Joints[i].type === "revolute"){
-        console.log("yep addded",tree.Joints[i].name);
         jointMap.set(tree.Joints[i].name,i)
     }
 }
