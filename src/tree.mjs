@@ -184,7 +184,7 @@ function formatMesh(mesh,color,id){
     mat.metalness = 0.1;
     mat.flatShading = true;
     mesh.scene.traverse((o) => {
-        if (o.isMesh) {
+       // if (o.isMesh) {
             o.userData.resetMaterial = mat.clone();
             o.userData.highlightMaterial = mat.clone();
             o.userData.highlightMaterial.color.setRGB(0.96470588, 0.59215686, 0.12156863)
@@ -194,7 +194,7 @@ function formatMesh(mesh,color,id){
             o.material = o.userData.resetMaterial;
             o.material = mat;
             o.geometry.computeVertexNormals();
-        }
+        //}
     });
     mesh.scene.rotateX(Math.PI/2);
 }
