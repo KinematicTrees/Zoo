@@ -165,8 +165,7 @@ export function loadRobot(url,meshDir,color) {
                     new Promise((resolve, reject) => {
                         return loader.load(tree.Links[i].meshfile, data => resolve(data), null, reject)
                     }).then((mesh) => {
-                        //formatMesh(mesh,color,i)
-                        tree.Links[i].mesh = mesh
+                        formatMesh(mesh,color,i)
                         tree.Links[i].origin.add(mesh.scene);
                     })
                 )

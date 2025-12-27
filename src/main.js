@@ -34,15 +34,18 @@ const [tree,p] = await KT.loadRobot(robotPath+"tree.json",robotPath,[0.5,0.5,0.5
 scene.add(tree.Root)
 
 
+/*
 for (let i=0;i<tree.Links.length;i++) {
     if (tree.Links[i].hasMesh) {
 
-                KT.formatMesh(tree.Links[i].mesh,color,i);
+                KT.formatMesh(tree.Links[i].mesh,[0.5,0.5,0.5],i);
                 //tree.Links[i].origin.add(mesh.scene);
-            
+
 
     }
     }
+
+ */
 
 const jointMap = new Map();
 for (let i = 0; i < tree.Joints.length; i++) {
