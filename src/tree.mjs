@@ -185,7 +185,6 @@ function formatMesh(mesh,color,id){
     mat.flatShading = true;
     mesh.scene.traverse((o) => {
         if (o.isMesh) {
-            console.log("Yep",mesh.name)
             o.userData.resetMaterial = mat.clone();
             o.userData.highlightMaterial = mat.clone();
             o.userData.highlightMaterial.color.setRGB(0.96470588, 0.59215686, 0.12156863)
