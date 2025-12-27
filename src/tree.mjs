@@ -52,7 +52,7 @@ class Link{
         this.Children = []
         this.ChildrenID = []
         this.ParentID = -1;
-        this.hasMesh = info.visual[0].mesh !== "__NoMeshFile__" && info.visual[0].mesh !== "__cylinder__" && info.visual[0].mesh !== "__box__" && info.visual[0].mesh !== "__sphere __";
+        this.hasMesh = info.visual[0].mesh !== "__NoMeshFile__" && info.visual[0].mesh !== "__cylinder__" && info.visual[0].mesh !== "__box__" && info.visual[0].mesh !== "__sphere__";
         if(this.hasMesh){
             this.meshfile = meshDir+info.visual[0].mesh;
         }
