@@ -197,6 +197,7 @@ function formatMesh(mesh,color,id){
         }
     });
     mesh.scene.rotateX(Math.PI/2);
+    mesh.scene.id = "scene_" + id
 }
 
 
