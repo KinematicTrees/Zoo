@@ -1,12 +1,114 @@
 {
     "Joints": [
         {
-            "name": "FrontCamera_fixed_joint",
-            "parent": "TORSO",
-            "child": "FrontCamera_frame",
+            "name": "base_footprint_joint",
+            "parent": "base_footprint",
+            "child": "base_link",
             "type": "fixed",
             "axis": [
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "base_roll_joint",
+            "parent": "base_link",
+            "child": "base_roll_link",
+            "type": "continuous",
+            "axis": [
                 0,
+                0,
+                1
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 34.46,
+            "vel": 2.5,
+            "mimic": false
+        },
+        {
+            "name": "base_r_drive_wheel_joint",
+            "parent": "base_roll_link",
+            "child": "base_r_drive_wheel_link",
+            "type": "continuous",
+            "axis": [
+                0,
+                1,
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                -0.11,
+                -0.133,
+                0.04
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 11.067,
+            "vel": 20.8,
+            "mimic": false
+        },
+        {
+            "name": "base_l_drive_wheel_joint",
+            "parent": "base_roll_link",
+            "child": "base_l_drive_wheel_link",
+            "type": "continuous",
+            "axis": [
+                0,
+                1,
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                -0.11,
+                0.133,
+                0.04
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 11.067,
+            "vel": 20.8,
+            "mimic": false
+        },
+        {
+            "name": "base_r_passive_wheel_x_frame_joint",
+            "parent": "base_roll_link",
+            "child": "base_r_passive_wheel_x_frame",
+            "type": "continuous",
+            "axis": [
+                1,
                 0,
                 0
             ],
@@ -16,7 +118,265 @@
                 0
             ],
             "xyz": [
-                0.28,
+                0.1495,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -0.055,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.03
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 1,
+            "vel": 3,
+            "mimic": false
+        },
+        {
+            "name": "base_r_passive_wheel_y_frame_joint",
+            "parent": "base_r_passive_wheel_x_frame",
+            "child": "base_r_passive_wheel_y_frame",
+            "type": "continuous",
+            "axis": [
+                0,
+                1,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 8.85,
+            "vel": 10,
+            "mimic": false
+        },
+        {
+            "name": "base_r_passive_wheel_z_joint",
+            "parent": "base_r_passive_wheel_y_frame",
+            "child": "base_r_passive_wheel_z_link",
+            "type": "continuous",
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 8.85,
+            "vel": 10,
+            "mimic": false
+        },
+        {
+            "name": "base_l_passive_wheel_x_frame_joint",
+            "parent": "base_roll_link",
+            "child": "base_l_passive_wheel_x_frame",
+            "type": "continuous",
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0.1495,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.055,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0.03
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 1,
+            "vel": 3,
+            "mimic": false
+        },
+        {
+            "name": "base_l_passive_wheel_y_frame_joint",
+            "parent": "base_l_passive_wheel_x_frame",
+            "child": "base_l_passive_wheel_y_frame",
+            "type": "continuous",
+            "axis": [
+                0,
+                1,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 8.85,
+            "vel": 10,
+            "mimic": false
+        },
+        {
+            "name": "base_l_passive_wheel_z_joint",
+            "parent": "base_l_passive_wheel_y_frame",
+            "child": "base_l_passive_wheel_z_link",
+            "type": "continuous",
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -3.141592653589793,
+            "upper": 3.141592653589793,
+            "default": 0,
+            "effort": 8.85,
+            "vel": 10,
+            "mimic": false
+        },
+        {
+            "name": "base_range_sensor_joint",
+            "parent": "base_link",
+            "child": "base_range_sensor_link",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0.1675,
+                0,
+                0.1844
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "base_imu_frame_joint",
+            "parent": "base_link",
+            "child": "base_imu_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0.0005,
+                0.1296,
+                0.181
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "base_f_bumper_joint",
+            "parent": "base_link",
+            "child": "base_f_bumper_link",
+            "type": "revolute",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
                 0,
                 0
             ],
@@ -28,50 +388,21 @@
             "mimic": false
         },
         {
-            "name": "FrontSonar_fixed_joint",
-            "parent": "TORSO",
-            "child": "FrontSonar_frame",
-            "type": "fixed",
+            "name": "base_b_bumper_joint",
+            "parent": "base_link",
+            "child": "base_b_bumper_link",
+            "type": "revolute",
             "axis": [
-                0,
-                0,
                 0
             ],
             "rpy": [
                 0,
                 0,
-                0
+                3.14159265359
             ],
             "xyz": [
-                0.28,
                 0,
-                0.05
-            ],
-            "lower": 0,
-            "upper": 0,
-            "default": 0,
-            "effort": 0,
-            "vel": 0,
-            "mimic": false
-        },
-        {
-            "name": "RearSonar_fixed_joint",
-            "parent": "TORSO",
-            "child": "RearSonar_frame",
-            "type": "fixed",
-            "axis": [
-                0,
-                0,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                3.141
-            ],
-            "xyz": [
-                -0.28,
-                0,
+                0.0013,
                 0
             ],
             "lower": 0,
@@ -82,14 +413,14 @@
             "mimic": false
         },
         {
-            "name": "FL_HipX_joint",
-            "parent": "TORSO",
-            "child": "FL_HIP",
-            "type": "revolute",
+            "name": "torso_lift_joint",
+            "parent": "base_link",
+            "child": "torso_lift_link",
+            "type": "prismatic",
             "axis": [
-                -1,
                 0,
-                0
+                0,
+                1
             ],
             "rpy": [
                 0,
@@ -97,21 +428,48 @@
                 0
             ],
             "xyz": [
-                0.1745,
-                0.062,
-                0
+                0,
+                0,
+                0.752
             ],
-            "lower": -0.523,
-            "upper": 0.523,
+            "lower": 0,
+            "upper": 0.345,
             "default": 0,
-            "effort": 24,
-            "vel": 26.16,
+            "effort": 300,
+            "vel": 0.1,
+            "mimic": true
+        },
+        {
+            "name": "head_pan_joint",
+            "parent": "torso_lift_link",
+            "child": "head_pan_link",
+            "type": "revolute",
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0
+            ],
+            "lower": -3.84,
+            "upper": 1.75,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
             "mimic": false
         },
         {
-            "name": "FL_HipY_joint",
-            "parent": "FL_HIP",
-            "child": "FL_THIGH",
+            "name": "head_tilt_joint",
+            "parent": "head_pan_link",
+            "child": "head_tilt_link",
             "type": "revolute",
             "axis": [
                 0,
@@ -124,59 +482,34 @@
                 0
             ],
             "xyz": [
+                0.02,
                 0,
-                0.09735,
                 0
             ],
-            "lower": -2.67,
-            "upper": 0.314,
-            "default": -0.733038,
-            "effort": 24,
-            "vel": 26.16,
+            "lower": -1.57,
+            "upper": 0.52,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
             "mimic": false
         },
         {
-            "name": "FL_Knee_joint",
-            "parent": "FL_THIGH",
-            "child": "FL_SHANK",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                0,
-                -0.2
-            ],
-            "lower": 0.524,
-            "upper": 2.792,
-            "default": 1.36136,
-            "effort": 36,
-            "vel": 17.1,
-            "mimic": false
-        },
-        {
-            "name": "FL_Ankle",
-            "parent": "FL_SHANK",
-            "child": "FL_FOOT",
+            "name": "head_l_stereo_camera_joint",
+            "parent": "head_tilt_link",
+            "child": "head_l_stereo_camera_link",
             "type": "fixed",
             "axis": [
                 0
             ],
             "rpy": [
-                0
+                -1.57079632679,
+                0,
+                -1.57079632679
             ],
             "xyz": [
-                0,
-                0,
-                -0.21012
+                0.02,
+                0.07,
+                0.061
             ],
             "lower": 0,
             "upper": 0,
@@ -186,101 +519,22 @@
             "mimic": false
         },
         {
-            "name": "FR_HipX_joint",
-            "parent": "TORSO",
-            "child": "FR_HIP",
-            "type": "revolute",
-            "axis": [
-                -1,
-                0,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0.1745,
-                -0.062,
-                0
-            ],
-            "lower": -0.523,
-            "upper": 0.523,
-            "default": 0,
-            "effort": 24,
-            "vel": 26.16,
-            "mimic": false
-        },
-        {
-            "name": "FR_HipY_joint",
-            "parent": "FR_HIP",
-            "child": "FR_THIGH",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                -0.09735,
-                0
-            ],
-            "lower": -2.67,
-            "upper": 0.314,
-            "default": -0.733038,
-            "effort": 24,
-            "vel": 26.16,
-            "mimic": false
-        },
-        {
-            "name": "FR_Knee_joint",
-            "parent": "FR_THIGH",
-            "child": "FR_SHANK",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                0,
-                -0.2
-            ],
-            "lower": 0.524,
-            "upper": 2.792,
-            "default": 1.36136,
-            "effort": 36,
-            "vel": 17.1,
-            "mimic": false
-        },
-        {
-            "name": "FR_Ankle",
-            "parent": "FR_SHANK",
-            "child": "FR_FOOT",
+            "name": "head_l_stereo_camera_gazebo_frame_joint",
+            "parent": "head_l_stereo_camera_link",
+            "child": "head_l_stereo_camera_gazebo_frame",
             "type": "fixed",
             "axis": [
                 0
             ],
             "rpy": [
+                1.57079632679,
+                -1.57079632679,
                 0
             ],
             "xyz": [
                 0,
                 0,
-                -0.21012
+                0
             ],
             "lower": 0,
             "upper": 0,
@@ -290,101 +544,22 @@
             "mimic": false
         },
         {
-            "name": "HL_HipX_joint",
-            "parent": "TORSO",
-            "child": "HL_HIP",
-            "type": "revolute",
-            "axis": [
-                -1,
-                0,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                -0.1745,
-                0.062,
-                0
-            ],
-            "lower": -0.523,
-            "upper": 0.523,
-            "default": 0,
-            "effort": 24,
-            "vel": 26.16,
-            "mimic": false
-        },
-        {
-            "name": "HL_HipY_joint",
-            "parent": "HL_HIP",
-            "child": "HL_THIGH",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                0.09735,
-                0
-            ],
-            "lower": -2.67,
-            "upper": 0.314,
-            "default": -0.733038,
-            "effort": 24,
-            "vel": 26.16,
-            "mimic": false
-        },
-        {
-            "name": "HL_Knee_joint",
-            "parent": "HL_THIGH",
-            "child": "HL_SHANK",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                0,
-                -0.2
-            ],
-            "lower": 0.524,
-            "upper": 2.792,
-            "default": 1.36136,
-            "effort": 36,
-            "vel": 17.1,
-            "mimic": false
-        },
-        {
-            "name": "HL_Ankle",
-            "parent": "HL_SHANK",
-            "child": "HL_FOOT",
+            "name": "head_r_stereo_camera_joint",
+            "parent": "head_tilt_link",
+            "child": "head_r_stereo_camera_link",
             "type": "fixed",
             "axis": [
                 0
             ],
             "rpy": [
-                0
+                -1.57079632679,
+                0,
+                -1.57079632679
             ],
             "xyz": [
-                0,
-                0,
-                -0.21012
+                0.02,
+                -0.07,
+                0.061
             ],
             "lower": 0,
             "upper": 0,
@@ -394,101 +569,22 @@
             "mimic": false
         },
         {
-            "name": "HR_HipX_joint",
-            "parent": "TORSO",
-            "child": "HR_HIP",
-            "type": "revolute",
-            "axis": [
-                -1,
-                0,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                -0.1745,
-                -0.062,
-                0
-            ],
-            "lower": -0.523,
-            "upper": 0.523,
-            "default": 0,
-            "effort": 24,
-            "vel": 26.16,
-            "mimic": false
-        },
-        {
-            "name": "HR_HipY_joint",
-            "parent": "HR_HIP",
-            "child": "HR_THIGH",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                -0.09735,
-                0
-            ],
-            "lower": -2.67,
-            "upper": 0.314,
-            "default": -0.733038,
-            "effort": 24,
-            "vel": 26.16,
-            "mimic": false
-        },
-        {
-            "name": "HR_Knee_joint",
-            "parent": "HR_THIGH",
-            "child": "HR_SHANK",
-            "type": "revolute",
-            "axis": [
-                0,
-                -1,
-                0
-            ],
-            "rpy": [
-                0,
-                0,
-                0
-            ],
-            "xyz": [
-                0,
-                0,
-                -0.2
-            ],
-            "lower": 0.524,
-            "upper": 2.792,
-            "default": 1.36136,
-            "effort": 36,
-            "vel": 17.1,
-            "mimic": false
-        },
-        {
-            "name": "HR_Ankle",
-            "parent": "HR_SHANK",
-            "child": "HR_FOOT",
+            "name": "head_r_stereo_camera_gazebo_frame_joint",
+            "parent": "head_r_stereo_camera_link",
+            "child": "head_r_stereo_camera_gazebo_frame",
             "type": "fixed",
             "axis": [
                 0
             ],
             "rpy": [
+                1.57079632679,
+                -1.57079632679,
                 0
             ],
             "xyz": [
                 0,
                 0,
-                -0.21012
+                0
             ],
             "lower": 0,
             "upper": 0,
@@ -498,18 +594,645 @@
             "mimic": false
         },
         {
-            "name": "BodyIMU_joint",
-            "parent": "TORSO",
-            "child": "BodyIMU_frame",
+            "name": "head_center_camera_frame_joint",
+            "parent": "head_tilt_link",
+            "child": "head_center_camera_frame",
             "type": "fixed",
             "axis": [
+                0
+            ],
+            "rpy": [
+                -1.57079632679,
                 0,
+                -1.57079632679
+            ],
+            "xyz": [
+                0.0195,
+                0,
+                0.061
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "head_center_camera_gazebo_frame_joint",
+            "parent": "head_center_camera_frame",
+            "child": "head_center_camera_gazebo_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                1.57079632679,
+                -1.57079632679,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "head_rgbd_sensor_joint",
+            "parent": "head_tilt_link",
+            "child": "head_rgbd_sensor_link",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                -1.57079632679,
+                0,
+                -1.57079632679
+            ],
+            "xyz": [
+                -0.079796,
+                0.022,
+                0.215172
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "head_rgbd_sensor_gazebo_frame_joint",
+            "parent": "head_rgbd_sensor_link",
+            "child": "head_rgbd_sensor_gazebo_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                1.57079632679,
+                -1.57079632679,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "arm_lift_joint",
+            "parent": "base_link",
+            "child": "arm_lift_link",
+            "type": "prismatic",
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0.34
+            ],
+            "lower": 0,
+            "upper": 0.69,
+            "default": 0,
+            "effort": 300,
+            "vel": 0.2,
+            "mimic": false
+        },
+        {
+            "name": "arm_flex_joint",
+            "parent": "arm_lift_link",
+            "child": "arm_flex_link",
+            "type": "revolute",
+            "axis": [
+                0,
+                -1,
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0.141,
+                0.078,
+                0
+            ],
+            "lower": -2.62,
+            "upper": 0,
+            "default": 0,
+            "effort": 100,
+            "vel": 1.2,
+            "mimic": false
+        },
+        {
+            "name": "arm_roll_joint",
+            "parent": "arm_flex_link",
+            "child": "arm_roll_link",
+            "type": "revolute",
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0.005,
+                0,
+                0.345
+            ],
+            "lower": -2.09,
+            "upper": 3.84,
+            "default": 0,
+            "effort": 100,
+            "vel": 2,
+            "mimic": false
+        },
+        {
+            "name": "wrist_flex_joint",
+            "parent": "arm_roll_link",
+            "child": "wrist_flex_link",
+            "type": "revolute",
+            "axis": [
+                0,
+                -1,
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0
+            ],
+            "lower": -1.92,
+            "upper": 1.22,
+            "default": 0,
+            "effort": 100,
+            "vel": 1.5,
+            "mimic": false
+        },
+        {
+            "name": "wrist_roll_joint",
+            "parent": "wrist_flex_link",
+            "child": "wrist_ft_sensor_mount_link",
+            "type": "revolute",
+            "axis": [
+                0,
+                0,
+                1
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0
+            ],
+            "lower": -1.92,
+            "upper": 3.67,
+            "default": 0,
+            "effort": 100,
+            "vel": 1.5,
+            "mimic": false
+        },
+        {
+            "name": "wrist_ft_sensor_frame_inverse_joint",
+            "parent": "wrist_ft_sensor_frame",
+            "child": "wrist_roll_link",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                -3.14159265359,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0.0735
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "wrist_ft_sensor_frame_joint",
+            "parent": "wrist_ft_sensor_mount_link",
+            "child": "wrist_ft_sensor_frame",
+            "type": "revolute",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                3.14159265359,
+                0,
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0.0735
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 100,
+            "vel": 1.5,
+            "mimic": false
+        },
+        {
+            "name": "hand_palm_joint",
+            "parent": "wrist_roll_link",
+            "child": "hand_palm_link",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                3.14159265359
+            ],
+            "xyz": [
+                0.012,
+                0,
+                0.1405
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "hand_motor_joint",
+            "parent": "hand_palm_link",
+            "child": "hand_motor_dummy_link",
+            "type": "revolute",
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -0.798,
+            "upper": 1.24,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": false
+        },
+        {
+            "name": "hand_l_proximal_joint",
+            "parent": "hand_palm_link",
+            "child": "hand_l_proximal_link",
+            "type": "revolute",
+            "axis": [
+                1,
                 0,
                 0
             ],
             "rpy": [
                 0,
                 0,
+                0
+            ],
+            "xyz": [
+                -0.01675,
+                -0.0245,
+                -0.0175
+            ],
+            "lower": -0.798,
+            "upper": 1.24,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": true
+        },
+        {
+            "name": "hand_l_spring_proximal_joint",
+            "parent": "hand_l_proximal_link",
+            "child": "hand_l_spring_proximal_link",
+            "type": "revolute",
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": 0,
+            "upper": 0.698,
+            "default": 0,
+            "effort": 10,
+            "vel": 1,
+            "mimic": false
+        },
+        {
+            "name": "hand_l_mimic_distal_joint",
+            "parent": "hand_l_spring_proximal_link",
+            "child": "hand_l_mimic_distal_link",
+            "type": "revolute",
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0.07
+            ],
+            "lower": -0.698,
+            "upper": -0,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": true
+        },
+        {
+            "name": "hand_l_distal_joint",
+            "parent": "hand_l_mimic_distal_link",
+            "child": "hand_l_distal_link",
+            "type": "revolute",
+            "axis": [
+                1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -1.24,
+            "upper": 0.798,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": true
+        },
+        {
+            "name": "hand_l_finger_tip_frame_joint",
+            "parent": "hand_l_distal_link",
+            "child": "hand_l_finger_tip_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                -1.57079632679,
+                0,
+                0
+            ],
+            "xyz": [
+                0.01675,
+                0.01865,
+                0.04289
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "hand_l_finger_vacuum_frame_joint",
+            "parent": "hand_l_distal_link",
+            "child": "hand_l_finger_vacuum_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                0.785398163397,
+                0,
+                0
+            ],
+            "xyz": [
+                0.00475,
+                -0.011539,
+                0.03322
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "hand_r_proximal_joint",
+            "parent": "hand_palm_link",
+            "child": "hand_r_proximal_link",
+            "type": "revolute",
+            "axis": [
+                -1,
+                0,
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                -0.01675,
+                0.0245,
+                -0.0175
+            ],
+            "lower": -0.798,
+            "upper": 1.24,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": true
+        },
+        {
+            "name": "hand_r_spring_proximal_joint",
+            "parent": "hand_r_proximal_link",
+            "child": "hand_r_spring_proximal_link",
+            "type": "revolute",
+            "axis": [
+                -1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": 0,
+            "upper": 0.698,
+            "default": 0,
+            "effort": 10,
+            "vel": 1,
+            "mimic": false
+        },
+        {
+            "name": "hand_r_mimic_distal_joint",
+            "parent": "hand_r_spring_proximal_link",
+            "child": "hand_r_mimic_distal_link",
+            "type": "revolute",
+            "axis": [
+                -1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0,
+                0,
+                0.07
+            ],
+            "lower": -0.698,
+            "upper": -0,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": true
+        },
+        {
+            "name": "hand_r_distal_joint",
+            "parent": "hand_r_mimic_distal_link",
+            "child": "hand_r_distal_link",
+            "type": "revolute",
+            "axis": [
+                -1,
+                0,
+                0
+            ],
+            "rpy": [
+                0
+            ],
+            "xyz": [
+                0
+            ],
+            "lower": -1.24,
+            "upper": 0.798,
+            "default": 0,
+            "effort": 100,
+            "vel": 1,
+            "mimic": true
+        },
+        {
+            "name": "hand_r_finger_tip_frame_joint",
+            "parent": "hand_r_distal_link",
+            "child": "hand_r_finger_tip_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                1.57079632679,
+                0,
+                0
+            ],
+            "xyz": [
+                0.01675,
+                -0.01865,
+                0.04289
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "hand_camera_frame_joint",
+            "parent": "hand_palm_link",
+            "child": "hand_camera_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                0,
+                0,
+                0
+            ],
+            "xyz": [
+                0.039,
+                0,
+                -0.0045
+            ],
+            "lower": 0,
+            "upper": 0,
+            "default": 0,
+            "effort": 0,
+            "vel": 0,
+            "mimic": false
+        },
+        {
+            "name": "hand_camera_gazebo_frame_joint",
+            "parent": "hand_camera_frame",
+            "child": "hand_camera_gazebo_frame",
+            "type": "fixed",
+            "axis": [
+                0
+            ],
+            "rpy": [
+                1.57079632679,
+                -1.57079632679,
                 0
             ],
             "xyz": [
@@ -527,64 +1250,7 @@
     ],
     "Links": [
         {
-            "name": "TORSO",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh000_torso.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0,
-                0,
-                0
-            ],
-            "mass": 5.6056,
-            "inertia": [
-                0.02456,
-                0,
-                0,
-                0.05518,
-                0,
-                0.07016
-            ],
-            "contact": ""
-        },
-        {
-            "name": "FrontCamera_frame",
+            "name": "base_footprint",
             "visual": [
                 {
                     "capsule": {
@@ -641,7 +1307,299 @@
             "contact": ""
         },
         {
-            "name": "FrontSonar_frame",
+            "name": "base_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.014794956838679683,
+                            0.005182951978069846,
+                            0.09189059355962753
+                        ],
+                        "CapB": [
+                            -0.006170026083932027,
+                            -0.003559598779640076,
+                            0.09300561664291966
+                        ],
+                        "Radius": 0.22950139066821992
+                    },
+                    "mesh": "mesh001_base_light.dae",
+                    "collision": "collision001_base_light.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.06357151546935588,
+                            0.008405257495722502,
+                            0.5209419389127408
+                        ],
+                        "CapB": [
+                            -0.050515344183512556,
+                            0.024936519041742863,
+                            0.16455057747901428
+                        ],
+                        "Radius": 0.21667823605786896
+                    },
+                    "mesh": "mesh001_body_light.dae",
+                    "collision": "collision001_body_light.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.011641156411393367,
+                            -0.0258442332448901,
+                            0.14926711641715837
+                        ],
+                        "CapB": [
+                            0.011486451565671131,
+                            -0.004327469231537118,
+                            0.4541986763997825
+                        ],
+                        "Radius": 0.07407377053854994
+                    },
+                    "mesh": "mesh001_torso_base.dae",
+                    "collision": "collision001_torso_base.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                -0.025978,
+                -0.005498,
+                0.17633
+            ],
+            "mass": 50,
+            "inertia": [
+                0.3742,
+                0.000434172172,
+                0.03088,
+                0.3436,
+                0.01775,
+                0.1509
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_roll_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                -0.019482,
+                0.002191,
+                0.071013
+            ],
+            "mass": 10.239419,
+            "inertia": [
+                0.07671,
+                -0.01005,
+                0.001749,
+                0.09057,
+                0.001549,
+                0.145
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_r_drive_wheel_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__cylinder__",
+                    "collision": "",
+                    "rot": [
+                        1.57079632679,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        0.04,
+                        0.03,
+                        0
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.2,
+            "inertia": [
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_l_drive_wheel_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__cylinder__",
+                    "collision": "",
+                    "rot": [
+                        1.57079632679,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        0.04,
+                        0.03,
+                        0
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.2,
+            "inertia": [
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_r_passive_wheel_x_frame",
             "visual": [
                 {
                     "capsule": {
@@ -686,19 +1644,19 @@
                 0,
                 0
             ],
-            "mass": -1,
+            "mass": 0.2,
             "inertia": [
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
             ],
             "contact": ""
         },
         {
-            "name": "RearSonar_frame",
+            "name": "base_r_passive_wheel_y_frame",
             "visual": [
                 {
                     "capsule": {
@@ -743,19 +1701,19 @@
                 0,
                 0
             ],
-            "mass": -1,
+            "mass": 0.2,
             "inertia": [
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
             ],
             "contact": ""
         },
         {
-            "name": "FL_HIP",
+            "name": "base_r_passive_wheel_z_link",
             "visual": [
                 {
                     "capsule": {
@@ -771,10 +1729,10 @@
                         ],
                         "Radius": 0
                     },
-                    "mesh": "mesh004_fl_hip.dae",
+                    "mesh": "__sphere__",
                     "collision": "",
                     "rot": [
-                        -1.57,
+                        0,
                         0,
                         0
                     ],
@@ -784,9 +1742,9 @@
                         0
                     ],
                     "scale": [
-                        1,
-                        1,
-                        1
+                        0.03,
+                        0,
+                        0
                     ]
                 }
             ],
@@ -796,878 +1754,23 @@
                 0
             ],
             "inertialXyz": [
-                -0.00601,
-                -0.0066532,
-                0.00034295
+                0,
+                0,
+                0
             ],
-            "mass": 0.55,
+            "mass": 0.2,
             "inertia": [
-                0.0003949,
+                0.015,
                 0,
                 0,
-                0.0004028,
+                0.015,
                 0,
-                0.0004472
+                0.015
             ],
             "contact": ""
         },
         {
-            "name": "FL_THIGH",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh005_fl_thigh.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                -0.0052817,
-                -0.014632,
-                -0.042672
-            ],
-            "mass": 0.86,
-            "inertia": [
-                0.005736,
-                0,
-                0,
-                0.00496,
-                0,
-                0.001436
-            ],
-            "contact": ""
-        },
-        {
-            "name": "FL_SHANK",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh006_fl_shank_collision.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0.0064794,
-                -0.0000014535,
-                -0.12157
-            ],
-            "mass": 0.153,
-            "inertia": [
-                0.00089039,
-                0,
-                0,
-                0.00090672,
-                0,
-                0.000031266
-            ],
-            "contact": ""
-        },
-        {
-            "name": "FL_FOOT",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh007_foot_bumper.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0,
-                0,
-                0
-            ],
-            "mass": 0.02,
-            "inertia": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-            ],
-            "contact": "foot"
-        },
-        {
-            "name": "FR_HIP",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh008_fr_hip.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                -0.010579,
-                0.011358,
-                0.00048546
-            ],
-            "mass": 0.55,
-            "inertia": [
-                0.0004472,
-                0,
-                0,
-                0.0004028,
-                0,
-                0.0003949
-            ],
-            "contact": ""
-        },
-        {
-            "name": "FR_THIGH",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh009_fr_thigh.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                -0.0039245,
-                0.025256,
-                -0.025146
-            ],
-            "mass": 0.86,
-            "inertia": [
-                0.005736,
-                0,
-                0,
-                0.00496,
-                0,
-                0.001436
-            ],
-            "contact": ""
-        },
-        {
-            "name": "FR_SHANK",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh010_fr_shank_collision.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0.0064794,
-                -0.0000014552,
-                -0.12157
-            ],
-            "mass": 0.153,
-            "inertia": [
-                0.00089039,
-                0,
-                0,
-                0.00090672,
-                0,
-                0.000031266
-            ],
-            "contact": ""
-        },
-        {
-            "name": "FR_FOOT",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh011_foot_bumper.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0,
-                0,
-                0
-            ],
-            "mass": 0.02,
-            "inertia": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-            ],
-            "contact": "foot"
-        },
-        {
-            "name": "HL_HIP",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh012_hl_hip.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0.010905,
-                -0.012636,
-                0.001051
-            ],
-            "mass": 0.55,
-            "inertia": [
-                0.0003949,
-                0,
-                0,
-                0.0004028,
-                0,
-                0.0004472
-            ],
-            "contact": ""
-        },
-        {
-            "name": "HL_THIGH",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh013_hl_thigh.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                -0.0057137,
-                -0.014631,
-                -0.042453
-            ],
-            "mass": 0.86,
-            "inertia": [
-                0.005736,
-                0,
-                0,
-                0.00496,
-                0,
-                0.001436
-            ],
-            "contact": ""
-        },
-        {
-            "name": "HL_SHANK",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh014_hl_shank_collision.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0.0064794,
-                -0.0000014558,
-                -0.12157
-            ],
-            "mass": 0.153,
-            "inertia": [
-                0.00089039,
-                0,
-                0,
-                0.00090672,
-                0,
-                0.000031266
-            ],
-            "contact": ""
-        },
-        {
-            "name": "HL_FOOT",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh015_foot_bumper.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0,
-                0,
-                0
-            ],
-            "mass": 0.02,
-            "inertia": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-            ],
-            "contact": "foot"
-        },
-        {
-            "name": "HR_HIP",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh016_hr_hip.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0.010354,
-                0.011423,
-                0.00049498
-            ],
-            "mass": 0.55,
-            "inertia": [
-                0.0003949,
-                0,
-                0,
-                0.0004028,
-                0,
-                0.0004472
-            ],
-            "contact": ""
-        },
-        {
-            "name": "HR_THIGH",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh017_hr_thigh.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                -0.0031903,
-                0.02526,
-                -0.025617
-            ],
-            "mass": 0.86,
-            "inertia": [
-                0.005736,
-                0,
-                0,
-                0.00496,
-                0,
-                0.001436
-            ],
-            "contact": ""
-        },
-        {
-            "name": "HR_SHANK",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh018_hr_shank_collision.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0.0064794,
-                -0.0000014529,
-                -0.12157
-            ],
-            "mass": 0.153,
-            "inertia": [
-                0.00089039,
-                0,
-                0,
-                0.00090672,
-                0,
-                0.000031266
-            ],
-            "contact": ""
-        },
-        {
-            "name": "HR_FOOT",
-            "visual": [
-                {
-                    "capsule": {
-                        "CapA": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "CapB": [
-                            0,
-                            0,
-                            0
-                        ],
-                        "Radius": 0
-                    },
-                    "mesh": "mesh019_foot_bumper.dae",
-                    "collision": "",
-                    "rot": [
-                        -1.57,
-                        0,
-                        0
-                    ],
-                    "pos": [
-                        0,
-                        0,
-                        0
-                    ],
-                    "scale": [
-                        1,
-                        1,
-                        1
-                    ]
-                }
-            ],
-            "inertialRpy": [
-                0,
-                0,
-                0
-            ],
-            "inertialXyz": [
-                0,
-                0,
-                0
-            ],
-            "mass": 0.02,
-            "inertia": [
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
-            ],
-            "contact": "foot"
-        },
-        {
-            "name": "BodyIMU_frame",
+            "name": "base_l_passive_wheel_x_frame",
             "visual": [
                 {
                     "capsule": {
@@ -1712,79 +1815,2392 @@
                 0,
                 0
             ],
-            "mass": -1,
+            "mass": 0.2,
             "inertia": [
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_l_passive_wheel_y_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.2,
+            "inertia": [
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_l_passive_wheel_z_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__sphere__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        0.03,
+                        0,
+                        0
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.2,
+            "inertia": [
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_range_sensor_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.0003014729161798366,
+                            -0.001264301086138733,
+                            -0.040758475333362645
+                        ],
+                        "CapB": [
+                            -0.0004138860268268962,
+                            0.00026377973027689815,
+                            -0.0045371829476483876
+                        ],
+                        "Radius": 0.03526890376668245
+                    },
+                    "mesh": "mesh011_laser.dae",
+                    "collision": "collision011_laser.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_imu_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_f_bumper_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.07083306193104649,
+                            -0.09464812781581755,
+                            0.030208319605945885
+                        ],
+                        "CapB": [
+                            0.08198817873188746,
+                            0.10309801592265719,
+                            0.028008650529906864
+                        ],
+                        "Radius": 0.14887185793814114
+                    },
+                    "mesh": "mesh013_bumper.dae",
+                    "collision": "collision013_bumper.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.06,
+            "inertia": [
+                0.001437,
+                0,
+                0,
+                0.001437,
+                0,
+                0.002875
+            ],
+            "contact": ""
+        },
+        {
+            "name": "base_b_bumper_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.07083306193104649,
+                            -0.09464812781581755,
+                            0.030208319605945885
+                        ],
+                        "CapB": [
+                            0.08198817873188746,
+                            0.10309801592265719,
+                            0.028008650529906864
+                        ],
+                        "Radius": 0.14887185793814114
+                    },
+                    "mesh": "mesh014_bumper.dae",
+                    "collision": "collision014_bumper.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.06,
+            "inertia": [
+                0.001437,
+                0,
+                0,
+                0.001437,
+                0,
+                0.002875
+            ],
+            "contact": ""
+        },
+        {
+            "name": "torso_lift_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.04665211850832304,
+                            0.003938205700523868,
+                            -0.10286353077990978
+                        ],
+                        "CapB": [
+                            -0.036552338874907095,
+                            -0.0032719270346060502,
+                            -0.5585209174111424
+                        ],
+                        "Radius": 0.11085701692684037
+                    },
+                    "mesh": "mesh015_torso_light.dae",
+                    "collision": "collision015_torso_light.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                -0.051142,
+                0.003454,
+                -0.2905
+            ],
+            "mass": 3.420779,
+            "inertia": [
+                0.1045,
+                -0.000460884801,
+                0.000101130383,
+                0.105,
+                0.002941,
+                0.01284
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_pan_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.004616072232754828,
+                            -0.012368645372713418,
+                            -0.020383587330949516
+                        ],
+                        "CapB": [
+                            -0.00040922743443968937,
+                            0.006175598300583111,
+                            -0.01893893630576766
+                        ],
+                        "Radius": 0.06559299252128585
+                    },
+                    "mesh": "mesh016_head_pan.dae",
+                    "collision": "collision016_head_pan.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.001724,
+                -0.001969,
+                -0.028886
+            ],
+            "mass": 0.571903,
+            "inertia": [
+                0.0009711421,
+                0.00006179487,
+                -0.000113923121,
+                0.00065335493,
+                0.000069036305,
+                0.000765202576
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_tilt_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.0010129976742310736,
+                            -0.08945952564979365,
+                            0.0667810376782108
+                        ],
+                        "CapB": [
+                            -0.017054039201677102,
+                            0.04804249088072235,
+                            0.07770426650550546
+                        ],
+                        "Radius": 0.07090196524033039
+                    },
+                    "mesh": "mesh017_head_upper.dae",
+                    "collision": "collision017_head_upper.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.027932036131399184,
+                            -0.07130857458436533,
+                            0.0467142067145127
+                        ],
+                        "CapB": [
+                            -0.030233793532495452,
+                            0.09420801962143867,
+                            0.03617920451467418
+                        ],
+                        "Radius": 0.08808156248201487
+                    },
+                    "mesh": "mesh017_head_tilt.dae",
+                    "collision": "collision017_head_tilt.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.07947484798743423,
+                            0.0035581589525380307,
+                            0.1684021300812305
+                        ],
+                        "CapB": [
+                            -0.0794375872090813,
+                            0.0035589611994535607,
+                            0.16841356951420983
+                        ],
+                        "Radius": 0.13196116652609027
+                    },
+                    "mesh": "mesh017_tablet_base.dae",
+                    "collision": "collision017_tablet_base.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                -0.055376,
+                -0.002436,
+                0.117733
+            ],
+            "mass": 2.123802,
+            "inertia": [
+                0.01941,
+                -0.000138091054,
+                0.005035,
+                0.01498,
+                0.000087492537,
+                0.01167
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_l_stereo_camera_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.00009933240205758779,
+                            0.0011505535268151565,
+                            -0.00017220130908570871
+                        ],
+                        "CapB": [
+                            0.0007031571724479521,
+                            -0.000538036927557915,
+                            -0.024030535449039086
+                        ],
+                        "Radius": 0.022111570970087882
+                    },
+                    "mesh": "mesh018_head_camera.dae",
+                    "collision": "collision018_head_camera.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_l_stereo_camera_gazebo_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_r_stereo_camera_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.00009933240205758779,
+                            0.0011505535268151565,
+                            -0.00017220130908570871
+                        ],
+                        "CapB": [
+                            0.0007031571724479521,
+                            -0.000538036927557915,
+                            -0.024030535449039086
+                        ],
+                        "Radius": 0.022111570970087882
+                    },
+                    "mesh": "mesh020_head_camera.dae",
+                    "collision": "collision020_head_camera.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_r_stereo_camera_gazebo_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_center_camera_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_center_camera_gazebo_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_rgbd_sensor_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.05665471691970651,
+                            -0.004984110495802483,
+                            -0.01267701021001545
+                        ],
+                        "CapB": [
+                            0.09349219440888361,
+                            0.0028181202026280458,
+                            -0.01568867048625499
+                        ],
+                        "Radius": 0.02686476307123548
+                    },
+                    "mesh": "mesh024_xtion.dae",
+                    "collision": "collision024_xtion.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "head_rgbd_sensor_gazebo_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "arm_lift_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.08336972990998258,
+                            0.0013941208687065672,
+                            -0.060337712017964985
+                        ],
+                        "CapB": [
+                            0.1033239971616475,
+                            0.06484951256859363,
+                            -0.027812906201738936
+                        ],
+                        "Radius": 0.1107605182199938
+                    },
+                    "mesh": "mesh026_shoulder.dae",
+                    "collision": "collision026_shoulder.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.051549,
+                0.042438,
+                -0.064145
+            ],
+            "mass": 1.275819,
+            "inertia": [
+                0.004633,
+                0.000475272668,
+                -0.002403,
+                0.008065,
+                -0.000100268629,
+                0.007672
+            ],
+            "contact": ""
+        },
+        {
+            "name": "arm_flex_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.005193153109440194,
+                            0.004171136835510809,
+                            0.01399455552179335
+                        ],
+                        "CapB": [
+                            0.002684145747807383,
+                            0.00590376337363228,
+                            0.20610148184541194
+                        ],
+                        "Radius": 0.06803523482779113
+                    },
+                    "mesh": "mesh027_arm_flex_light.dae",
+                    "collision": "collision027_arm_flex_light.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.000632,
+                0.006404,
+                0.118529
+            ],
+            "mass": 1.339295,
+            "inertia": [
+                7.528,
+                -0.000020284207,
+                -0.000022947194,
+                0.007102,
+                -0.000091796075,
+                0.001552
+            ],
+            "contact": ""
+        },
+        {
+            "name": "arm_roll_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.0036344954663429636,
+                            -0.0013150552910497141,
+                            -0.029562226465046696
+                        ],
+                        "CapB": [
+                            -0.011345267445605994,
+                            0.012188307054146103,
+                            -0.08606430598478387
+                        ],
+                        "Radius": 0.07057691347186922
+                    },
+                    "mesh": "mesh028_arm_roll_light.dae",
+                    "collision": "collision028_arm_roll_light.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                -0.006927,
+                0.002039,
+                -0.064837
+            ],
+            "mass": 0.247936,
+            "inertia": [
+                0.004267,
+                -0.000018322199,
+                0.000017984455,
+                0.000780923828,
+                -0.00001392334,
+                0.00412
+            ],
+            "contact": ""
+        },
+        {
+            "name": "wrist_flex_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.00035252802523823317,
+                            -0.0000777921878357617,
+                            0.00878795230106651
+                        ],
+                        "CapB": [
+                            -0.00012781888203757923,
+                            -0.00042359330598368803,
+                            -0.000283310702712267
+                        ],
+                        "Radius": 0.029330713903965727
+                    },
+                    "mesh": "mesh029_wrist_flex.dae",
+                    "collision": "collision029_wrist_flex.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0.04
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0.04
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__cylinder__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0.04
+                    ],
+                    "scale": [
+                        0.017,
+                        0.02,
+                        0
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.000131,
+                -0.003929,
+                0.00217
+            ],
+            "mass": 0.681225,
+            "inertia": [
+                0.000074353558,
+                4.94515e-7,
+                2.2937e-8,
+                0.000038432887,
+                -0.00000255576,
+                0.000064680918
+            ],
+            "contact": ""
+        },
+        {
+            "name": "wrist_ft_sensor_mount_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "wrist_roll_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            -0.013697192637624585,
+                            0.0017916328132787935,
+                            0.10588304165166333
+                        ],
+                        "CapB": [
+                            -0.005135691613290627,
+                            -0.002552959367372311,
+                            0.08854379616237285
+                        ],
+                        "Radius": 0.06243499069455061
+                    },
+                    "mesh": "mesh031_wrist_roll.dae",
+                    "collision": "collision031_wrist_roll.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                -0.001416,
+                -0.001547,
+                0.081689
+            ],
+            "mass": 0.761692,
+            "inertia": [
+                0.000805633819,
+                -0.000014431758,
+                0.000028204659,
+                0.000768077165,
+                0.000022460226,
+                0.000453406611
+            ],
+            "contact": ""
+        },
+        {
+            "name": "wrist_ft_sensor_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_palm_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.006644258493549436,
+                            0.0005878660773478279,
+                            -0.022474895536044658
+                        ],
+                        "CapB": [
+                            0.008821659736843124,
+                            0.0022792030265740733,
+                            -0.02234075691942416
+                        ],
+                        "Radius": 0.042946253514965095
+                    },
+                    "mesh": "mesh033_palm_light.dae",
+                    "collision": "collision033_palm_light.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.15,
+            "inertia": [
+                0.015,
+                0,
+                0,
+                0.015,
+                0,
+                0.015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_motor_dummy_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_l_proximal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_l_spring_proximal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.01799602352085074,
+                            -0.0013337642978186967,
+                            0.05577798904864369
+                        ],
+                        "CapB": [
+                            0.019138774854261957,
+                            -0.0017830494553034949,
+                            0.006862058134389164
+                        ],
+                        "Radius": 0.020979107171680632
+                    },
+                    "mesh": "mesh036_l_proximal.dae",
+                    "collision": "collision036_l_proximal.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.021418,
+                0.00248,
+                0.022688
+            ],
+            "mass": 0.043589,
+            "inertia": [
+                0.000026033886,
+                -1.44078e-7,
+                -0.00000198241,
+                0.000028824811,
+                -0.000001268421,
+                0.000005135919
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_l_mimic_distal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_l_distal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.015670651975049996,
+                            0.004959153442535295,
+                            0.01949906345020802
+                        ],
+                        "CapB": [
+                            0.012758793201499835,
+                            0.0036796713780484734,
+                            0.017024344341721606
+                        ],
+                        "Radius": 0.02916902725812369
+                    },
+                    "mesh": "mesh038_l_distal.dae",
+                    "collision": "collision038_l_distal.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.011116,
+                0.005679,
+                0.017532
+            ],
+            "mass": 0.027731,
+            "inertia": [
+                0.000004451952,
+                -6.17574e-7,
+                5.03765e-7,
+                5.03765e-7,
+                -4.35048e-7,
+                0.000004456764
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_l_finger_tip_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_l_finger_vacuum_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            -0.01
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            -0.01
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__box__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        -0.01
+                    ],
+                    "scale": [
+                        0.008,
+                        0.008,
+                        0.02
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_r_proximal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_r_spring_proximal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.016784210840586927,
+                            0.002711146249870476,
+                            -0.00001057269633811253
+                        ],
+                        "CapB": [
+                            0.0178266191996129,
+                            0.0015948596677147358,
+                            0.05463538549895773
+                        ],
+                        "Radius": 0.022132662686935322
+                    },
+                    "mesh": "mesh042_r_proximal.dae",
+                    "collision": "collision042_r_proximal.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.013203,
+                0.002096,
+                0.023311
+            ],
+            "mass": 0.043956,
+            "inertia": [
+                0.00002623664,
+                1.631e-8,
+                0.000001281845,
+                0.000028838232,
+                -0.000001621709,
+                0.000004957151
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_r_mimic_distal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_r_distal_link",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0.01731048905411655,
+                            -0.005598020857310238,
+                            0.012506764949979992
+                        ],
+                        "CapB": [
+                            0.013512390696883526,
+                            -0.011566536294882822,
+                            0.03255063687460334
+                        ],
+                        "Radius": 0.023369844891012966
+                    },
+                    "mesh": "mesh044_r_distal.dae",
+                    "collision": "collision044_r_distal.dae",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0.014256,
+                -0.008321,
+                0.015591
+            ],
+            "mass": 0.020927,
+            "inertia": [
+                0.00000307518,
+                -4.954e-8,
+                9.481e-9,
+                0.000004074079,
+                8.43648e-7,
+                0.000002807795
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_r_finger_tip_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.0015,
+                0,
+                0,
+                0.0015,
+                0,
+                0.0015
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_camera_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
+            ],
+            "contact": ""
+        },
+        {
+            "name": "hand_camera_gazebo_frame",
+            "visual": [
+                {
+                    "capsule": {
+                        "CapA": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "CapB": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Radius": 0
+                    },
+                    "mesh": "__NoMeshFile__",
+                    "collision": "",
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "scale": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ],
+            "inertialRpy": [
+                0,
+                0,
+                0
+            ],
+            "inertialXyz": [
+                0,
+                0,
+                0
+            ],
+            "mass": 0.01,
+            "inertia": [
+                0.001,
+                0,
+                0,
+                0.001,
+                0,
+                0.001
             ],
             "contact": ""
         }
     ],
-    "Mimics": null,
+    "Mimics": [
+        {
+            "joint": "torso_lift_joint",
+            "mimic": "arm_lift_joint",
+            "multi": 0.5,
+            "offset": 0
+        },
+        {
+            "joint": "hand_l_proximal_joint",
+            "mimic": "hand_motor_joint",
+            "multi": 1,
+            "offset": 0
+        },
+        {
+            "joint": "hand_l_mimic_distal_joint",
+            "mimic": "hand_l_spring_proximal_joint",
+            "multi": -1,
+            "offset": 0
+        },
+        {
+            "joint": "hand_l_distal_joint",
+            "mimic": "hand_motor_joint",
+            "multi": -1,
+            "offset": -0.087
+        },
+        {
+            "joint": "hand_r_proximal_joint",
+            "mimic": "hand_motor_joint",
+            "multi": 1,
+            "offset": 0
+        },
+        {
+            "joint": "hand_r_mimic_distal_joint",
+            "mimic": "hand_r_spring_proximal_joint",
+            "multi": -1,
+            "offset": 0
+        },
+        {
+            "joint": "hand_r_distal_joint",
+            "mimic": "hand_motor_joint",
+            "multi": -1,
+            "offset": -0.087
+        }
+    ],
     "Tags": {
-        "limbs": [
-            "FL_HIP",
-            "FR_HIP",
-            "HL_HIP",
-            "HR_HIP"
-        ],
+        "limbs": null,
         "grips": null,
-        "efecs": [
-            "FrontCamera_frame",
-            "FL_FOOT",
-            "FR_FOOT",
-            "HL_FOOT",
-            "HR_FOOT"
-        ]
+        "efecs": null
     },
-    "Locomotion": "quadruped",
+    "Locomotion": "",
     "Sensors": {
-        "cameras": [
-            {
-                "Name": "FrontCamera",
-                "Link": "FrontCamera_frame",
-                "Freq": 5,
-                "Fov": 1.06290551,
-                "Width": 640,
-                "Height": 480,
-                "Format": "R8G8B8",
-                "Near": 0.3,
-                "Far": 500
-            }
-        ],
+        "cameras": [],
         "depth_cameras": [],
-        "imus": [
-            {
-                "Name": "BodyIMU",
-                "Link": "BodyIMU_frame",
-                "Noise": 0,
-                "Resolution": 0
-            }
-        ],
-        "ultrasonics": [
-            {
-                "Name": "FrontSonar",
-                "Link": "FrontSonar_frame",
-                "Min": 0.02,
-                "Max": 2,
-                "Resolution": 0.01,
-                "Aperture": 0.24,
-                "Noise": 0.01
-            },
-            {
-                "Name": "RearSonar",
-                "Link": "RearSonar_frame",
-                "Min": 0.02,
-                "Max": 4,
-                "Resolution": 0.01,
-                "Aperture": 0.24,
-                "Noise": 0.01
-            }
-        ],
+        "imus": [],
+        "ultrasonics": [],
         "infrareds": [],
         "light_sensors": [],
         "contact_sensors": [],
