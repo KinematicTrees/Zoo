@@ -182,7 +182,7 @@ function formatMesh(mesh,color,id){
     mat.emissiveColor = color;
     mat.roughness = 0.8;
     mat.metalness = 0.1;
-    mat.flatShading = true;
+    //mat.flatShading = true;
     mesh.scene.traverse((o) => {
         if (o.isMesh) {
             o.userData.resetMaterial = mat.clone();
