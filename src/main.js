@@ -1,170 +1,311 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {Timer} from "three";
+import { Timer } from 'three';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 import * as KT from './tree.mjs';
 
+let singletonApp = null;
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.z = 1;
-
-let winWidthScale = 1.0;
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth*winWidthScale, window.innerHeight );
-renderer.setClearColor( 0x000000, 1 );
-document.body.appendChild( renderer.domElement );
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.enableDamping = true;
-
-
-// BUILD THE SCENE
-const light = new THREE.AmbientLight( 0xffffff,1 );
-scene.add( light );
-
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-directionalLight.position.set(0,0,1);
-directionalLight.target.position.set(0,0,0);
-scene.add( directionalLight );
-
-
-let robotPath = getPath()
-const [tree,p] = await KT.loadRobot(robotPath+"tree.json",robotPath,[0.5,0.5,0.5])
-scene.add(tree.Root)
-
-
-/*
-for (let i=0;i<tree.Links.length;i++) {
-    if (tree.Links[i].hasMesh) {
-
-                KT.formatMesh(tree.Links[i].mesh,[0.5,0.5,0.5],i);
-                //tree.Links[i].origin.add(mesh.scene);
-
-
-    }
-    }
-
+/**
+ * Initialise the Zoo viewer.
+ *
+ * index.html should call this once, then use the returned handle to hot-swap robots.
+ *
+ * @param {string} robotPath e.g. "page1/" (served from /public)
+ * @param {{ setStatus?: (text:string)=>void }} opts
  */
+export async function init(robotPath, opts = {}) {
+  if (singletonApp) {
+    if (robotPath) await singletonApp.loadRobot(robotPath);
+    return singletonApp;
+  }
 
-const jointMap = new Map();
-for (let i = 0; i < tree.Joints.length; i++) {
-    if (tree.Joints[i].type === "revolute"){
-        jointMap.set(tree.Joints[i].name,i)
+  const app = new ZooApp(opts);
+  await app.start(robotPath);
+  singletonApp = app;
+  return app;
+}
+
+class ZooApp {
+  constructor(opts = {}) {
+    this.setStatus = typeof opts.setStatus === 'function' ? opts.setStatus : () => {};
+
+    this.scene = null;
+    this.camera = null;
+    this.renderer = null;
+    this.controls = null;
+    this.timer = null;
+
+    this.light = null;
+    this.directionalLight = null;
+
+    this.robotGroup = null;
+    this.tree = null;
+
+    this.gui = null;
+    this.API = { angle: 0.0 };
+    this.selection = -1;
+
+    this.coords = new THREE.Vector2();
+    this.raycaster = new THREE.Raycaster();
+
+    this.loadSeq = 0;
+
+    this._onMouseMove = (event) => this.onMouseMove(event);
+    this._onMouseDown = (event) => this.onMouseDown(event);
+    this._onResize = () => this.onResize();
+  }
+
+  async start(initialRobotPath) {
+    // SCENE/CAMERA/RENDERER
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.position.z = 1;
+
+    const winWidthScale = 1.0;
+    this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setSize(window.innerWidth * winWidthScale, window.innerHeight);
+    this.renderer.setClearColor(0x000000, 1);
+    document.body.appendChild(this.renderer.domElement);
+
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+
+    // LIGHTS
+    this.light = new THREE.AmbientLight(0xffffff, 1);
+    this.scene.add(this.light);
+
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    this.directionalLight.position.set(0, 0, 1);
+    this.directionalLight.target.position.set(0, 0, 0);
+    this.scene.add(this.directionalLight);
+
+    // ROBOT ROOT GROUP (so we can hot-swap cleanly)
+    this.robotGroup = new THREE.Group();
+    this.robotGroup.name = 'robot-root';
+    this.scene.add(this.robotGroup);
+
+    // INPUT
+    this.renderer.domElement.addEventListener('mousemove', this._onMouseMove);
+    this.renderer.domElement.addEventListener('mousedown', this._onMouseDown);
+    window.addEventListener('resize', this._onResize);
+
+    // ANIMATION LOOP
+    this.timer = new Timer();
+    this.timer.connect(document);
+
+    this.renderer.setAnimationLoop(() => this.animate());
+
+    // Initial load
+    if (initialRobotPath) {
+      await this.loadRobot(initialRobotPath);
     }
-}
+  }
 
-let selection = -1
+  normaliseRobotPath(robotPath) {
+    if (!robotPath) return '';
+    robotPath = robotPath.trim();
+    if (robotPath.startsWith('/')) robotPath = robotPath.slice(1);
+    if (!robotPath.endsWith('/')) robotPath += '/';
+    return robotPath;
+  }
 
-var gui = new GUI( { title: 'Joint Control', width: 300 } );
-gui.domElement.id = 'gui';
+  async loadRobot(robotPath) {
+    robotPath = this.normaliseRobotPath(robotPath);
+    if (!robotPath) return;
 
-const API = {
-    angle: 0.0,
-}
+    const mySeq = ++this.loadSeq;
+    this.setStatus(`Loading ${robotPath}...`);
 
-for (const [jointName, jointIndex] of jointMap.entries()) {
-    console.log(jointName, jointIndex)
-}
+    try {
+      const [tree] = await KT.loadRobot(`${robotPath}tree.json`, robotPath, [0.5, 0.5, 0.5]);
 
+      // If another load started while we were fetching, drop this result.
+      if (mySeq !== this.loadSeq) {
+        this.disposeTree(tree);
+        return;
+      }
 
-gui.add(API, 'angle', -1, 1, 0.02).name("Selected").onChange(function () {
-    if (selection !==-1) {
-        if ( tree.Links[selection].ParentID !== -1) {
-            tree.Joints[tree.Links[selection].ParentID].SetByUnitScaling(API.angle)
-        }
+      // Swap
+      this.clearRobot();
+      this.tree = tree;
+      this.robotGroup.add(tree.Root);
+
+      this.selection = -1;
+      this.rebuildJointGui(tree);
+
+      this.setStatus(`Loaded ${robotPath}`);
+      this.render();
+    } catch (e) {
+      console.error('Failed to load robot:', robotPath, e);
+      this.setStatus(`Failed to load ${robotPath}`);
     }
-    render();
-});
+  }
 
-for (const [jointName, jointIndex] of jointMap.entries()) {
-    gui.add(API, 'angle', -1, 1, 0.02).name(jointName).onChange(function () {
-        tree.Joints[jointIndex].SetByUnitScaling(API.angle)
-        render();
+  clearRobot() {
+    if (this.tree?.Root) {
+      this.robotGroup.remove(this.tree.Root);
+      this.disposeObject3D(this.tree.Root);
+    }
+    this.tree = null;
+
+    while (this.robotGroup.children.length) {
+      const c = this.robotGroup.children[this.robotGroup.children.length - 1];
+      this.robotGroup.remove(c);
+      this.disposeObject3D(c);
+    }
+
+    this.selection = -1;
+
+    if (this.gui) {
+      this.gui.destroy();
+      this.gui = null;
+    }
+  }
+
+  disposeTree(tree) {
+    if (tree?.Root) this.disposeObject3D(tree.Root);
+  }
+
+  disposeObject3D(obj) {
+    if (!obj) return;
+
+    obj.traverse((o) => {
+      if (o.isMesh) {
+        if (o.geometry?.dispose) o.geometry.dispose();
+
+        const disposeMaterial = (m) => {
+          if (!m) return;
+          for (const key of Object.keys(m)) {
+            const v = m[key];
+            if (v && v.isTexture && v.dispose) v.dispose();
+          }
+          if (m.dispose) m.dispose();
+        };
+
+        if (Array.isArray(o.material)) o.material.forEach(disposeMaterial);
+        else disposeMaterial(o.material);
+      }
     });
-}
+  }
 
+  rebuildJointGui(tree) {
+    if (this.gui) this.gui.destroy();
 
-// RAY-CASTING
-let selectedObject;
-let coords = new THREE.Vector2();
-const raycaster = new THREE.Raycaster();
-renderer.domElement.addEventListener('mousemove', onMouseMove)
-function onMouseMove(event){
-    coords.set (
-        (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
-        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
-    )
-    raycaster.setFromCamera(coords, camera)
-    const intersections = raycaster.intersectObjects(scene.children, true)
+    this.gui = new GUI({ title: 'Joint Control', width: 300 });
+    this.gui.domElement.id = 'gui';
+
+    const jointMap = new Map();
+    for (let i = 0; i < tree.Joints.length; i++) {
+      if (tree.Joints[i].type === 'revolute') {
+        jointMap.set(tree.Joints[i].name, i);
+      }
+    }
+
+    // "Selected" joint control (uses raycast selection)
+    this.gui
+      .add(this.API, 'angle', -1, 1, 0.02)
+      .name('Selected')
+      .onChange(() => {
+        if (this.selection !== -1) {
+          if (tree.Links[this.selection].ParentID !== -1) {
+            tree.Joints[tree.Links[this.selection].ParentID].SetByUnitScaling(this.API.angle);
+          }
+        }
+        this.render();
+      });
+
+    // Per-joint controls
+    for (const [jointName, jointIndex] of jointMap.entries()) {
+      this.gui
+        .add(this.API, 'angle', -1, 1, 0.02)
+        .name(jointName)
+        .onChange(() => {
+          tree.Joints[jointIndex].SetByUnitScaling(this.API.angle);
+          this.render();
+        });
+    }
+  }
+
+  onMouseMove(event) {
+    if (!this.tree) return;
+
+    this.coords.set(
+      (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
+      -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1
+    );
+
+    this.raycaster.setFromCamera(this.coords, this.camera);
+    const intersections = this.raycaster.intersectObjects(this.robotGroup.children, true);
 
     // RESET NON HOVER
-    scene.traverse((s) => {
-        s.traverse((o) => {
-            if (o.isMesh) {
-                //if (o.userData.index !== selection) {
-                if (o.userData.index !== selection ) {
-                    o.material = o.userData.resetMaterial
-                }
-            }
-        });
+    this.robotGroup.traverse((o) => {
+      if (o.isMesh) {
+        if (o.userData.index !== this.selection) {
+          o.material = o.userData.resetMaterial;
+        }
+      }
     });
 
     // HIGHLIGHT HOVER
     if (intersections.length > 0) {
-        selectedObject = intersections[0].object
-        selectedObject.traverse((o) => {
-            if (o.isMesh) {
-                if (o.userData.index !== selection) {
-                    o.material = o.userData.highlightMaterial;
-                }
-            }
-        });
+      const selectedObject = intersections[0].object;
+      selectedObject.traverse((o) => {
+        if (o.isMesh) {
+          if (o.userData.index !== this.selection) {
+            o.material = o.userData.highlightMaterial;
+          }
+        }
+      });
     }
-}
+  }
 
+  onMouseDown(event) {
+    if (!this.tree) return;
 
-renderer.domElement.addEventListener('mousedown', onMouseDown)
-function onMouseDown(event) {
-    coords.set(
-        (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
-        -(event.clientY / renderer.domElement.clientHeight) * 2 + 1
-    )
-    raycaster.setFromCamera(coords, camera)
-    const intersections = raycaster.intersectObjects(scene.children, true)
+    this.coords.set(
+      (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
+      -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1
+    );
+
+    this.raycaster.setFromCamera(this.coords, this.camera);
+    const intersections = this.raycaster.intersectObjects(this.robotGroup.children, true);
+
     if (intersections.length === 0) {
-        selection = -1 //
-        scene.traverse((s) => {
-            s.traverse((o) => {
-                if (o.isMesh) o.material = o.userData.resetMaterial
-            });
-        });
-    } else {
-        intersections[0].object.traverse((o) => {
-            if (o.isMesh) {
-                selection = o.userData.index;
-                o.material = o.userData.lowlightMaterial;
-            }
-        });
+      this.selection = -1;
+      this.robotGroup.traverse((o) => {
+        if (o.isMesh) o.material = o.userData.resetMaterial;
+      });
+      return;
     }
+
+    intersections[0].object.traverse((o) => {
+      if (o.isMesh) {
+        this.selection = o.userData.index;
+        o.material = o.userData.lowlightMaterial;
+      }
+    });
+  }
+
+  onResize() {
+    if (!this.camera || !this.renderer) return;
+
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.render();
+  }
+
+  animate() {
+    this.timer.update();
+    this.controls.update();
+
+    this.directionalLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+    this.render();
+  }
+
+  render() {
+    this.renderer.render(this.scene, this.camera);
+  }
 }
-
-
-
-// ANIMATE LOOP
-const timer = new Timer();
-timer.connect( document );
-
-function animate() {
-    timer.update();
-    controls.update();
-    directionalLight.position.set(camera.position.x,camera.position.y,camera.position.z);
-    render();
-}
-
-function render() {
-    renderer.render(scene, camera);
-}
-
-
-renderer.setAnimationLoop(animate);
