@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import {ColladaLoader} from "three/addons";
-import {Object3D, Vector3} from "three";
-const loader = new ColladaLoader()
+import { ColladaLoader } from "three/addons";
+import { Object3D, Vector3 } from "three";
 
-class Joint{
+const loader = new ColladaLoader();
+
+class Joint {
     constructor(info) {
 
         this.name = info.name;
@@ -15,12 +16,12 @@ class Joint{
 
         this.lower = info.lower
         this.upper = info.upper
-        this.range = this.upper-this.lower
-        this.axis = new Vector3(info.axis[0],info.axis[1],info.axis[2]);
+        this.range = this.upper - this.lower
+        this.axis = new Vector3(info.axis[0], info.axis[1], info.axis[2]);
 
         this.origin = new Object3D()
-        this.origin.position.set(info.xyz[0], info.xyz[1],info.xyz[2]);
-        this.origin.rotation.set(info.rpy[0], info.rpy[1],info.rpy[2]);
+        this.origin.position.set(info.xyz[0], info.xyz[1], info.xyz[2]);
+        this.origin.rotation.set(info.rpy[0], info.rpy[1], info.rpy[2]);
 
         this.pre = new Object3D()
         this.pre.add(this.origin)
@@ -29,11 +30,11 @@ class Joint{
     }
 
     Set(angle) {
-        if (this.type !== "revolute"){
+        if (this.type !== "revolute") {
             console.log("Not a revolute joint.")
             return
         }
-        this.post.setRotationFromAxisAngle(this.axis,angle);
+        this.post.setRotationFromAxisAngle(this.axis, angle);
     }
 
     SetByUnitScaling(unitScaled) {
@@ -43,8 +44,8 @@ class Joint{
     }
 }
 
-class Link{
-    constructor(info,meshDir){
+class Link {
+    constructor(info, meshDir) {
         this.name = info.name;
         this.origin = new Object3D()
         this.origin.position.set(info.visual[0].pos[0], info.visual[0].pos[1], info.visual[0].pos[2]);
@@ -53,16 +54,16 @@ class Link{
         this.ChildrenID = []
         this.ParentID = -1;
         this.hasMesh = info.visual[0].mesh !== "__NoMeshFile__" && info.visual[0].mesh !== "__cylinder__" && info.visual[0].mesh !== "__box__" && info.visual[0].mesh !== "__sphere__";
-        if(this.hasMesh){
-            this.meshfile = meshDir+info.visual[0].mesh;
+        if (this.hasMesh) {
+            this.meshfile = meshDir + info.visual[0].mesh;
         }
     }
 }
 
-class Tree{
-    constructor(json,meshDir){
+class Tree {
+    constructor(json, meshDir) {
 
-        this.Root = new Object3D().rotateX(-Math.PI/2)
+        this.Root = new Object3D().rotateX(-Math.PI / 2)
         this.Joints = [];
         this.Links = [];
         this.RootLinkID = -1
@@ -70,16 +71,16 @@ class Tree{
         this.RootLink = "unidentified root"
         this.RootJoints = []
 
-        for(let j=0; j<json.Joints.length;j++) {
+        for (let j = 0; j < json.Joints.length; j++) {
             this.Joints.push(new Joint(json.Joints[j]))
         }
 
-        for(let l=0; l<json.Links.length;l++) {
-            this.Links.push(new Link(json.Links[l],meshDir))
+        for (let l = 0; l < json.Links.length; l++) {
+            this.Links.push(new Link(json.Links[l], meshDir))
         }
 
         // Initialise link parents / children
-        for(let l=0; l<this.Links.length;l++) {
+        for (let l = 0; l < this.Links.length; l++) {
             for (let j = 0; j < this.Joints.length; j++) {
                 if (this.Links[l].name === this.Joints[j].child) {
                     this.Links[l].parent = this.Joints[j].name
@@ -95,13 +96,13 @@ class Tree{
         }
 
         // Initialise joint parents / children
-        for(let j= 0; j < this.Joints.length; j++) {
-            for(let l = 0; l < this.Links.length; l++) {
+        for (let j = 0; j < this.Joints.length; j++) {
+            for (let l = 0; l < this.Links.length; l++) {
                 if (this.Joints[j].child === this.Links[l].name) {
                     this.Joints[j].ChildID = l;
                 }
             }
-            for(let l = 0; l < this.Links.length; l++) {
+            for (let l = 0; l < this.Links.length; l++) {
                 if (this.Joints[j].parent === this.Links[l].name) {
                     this.Joints[j].ParentID = l
                 }
@@ -118,7 +119,7 @@ class Tree{
                     this.RootLinkID = l
                     this.RootJointIDs = this.Links[l].ChildrenID
                     this.RootLink = this.Links[l].name
-                    for (let k= 0; k < this.RootJointIDs.length; k++) {
+                    for (let k = 0; k < this.RootJointIDs.length; k++) {
                         this.RootJoints.push(this.Joints[this.RootJointIDs[k]].name)
                     }
                     rootIdentified = true
@@ -131,51 +132,86 @@ class Tree{
         }
 
         this.Root.add(this.Links[this.RootLinkID].origin)
-        for (let r =0; r<this.RootJointIDs.length; r++) {
+        for (let r = 0; r < this.RootJointIDs.length; r++) {
             this.Root.add(this.Joints[this.RootJointIDs[r]].pre)
             this.traverse(this.RootJointIDs[r])
         }
     }
 
 
-    traverse(k){
-        if(this.Joints[k].ChildID === -1) {
+    traverse(k) {
+        if (this.Joints[k].ChildID === -1) {
             return
         }
         this.Joints[k].post.add(this.Links[this.Joints[k].ChildID].origin)
         let childJoints = this.Links[this.Joints[k].ChildID].ChildrenID
-        for (let l=0;l<childJoints.length;l++) {
+        for (let l = 0; l < childJoints.length; l++) {
             this.Joints[k].post.add(this.Joints[childJoints[l]].pre)
             this.traverse(this.Links[this.Joints[k].ChildID].ChildrenID[l])
         }
     }
 }
 
+function resourceBasePath(url) {
+    // ColladaLoader.parse wants a base path for resolving relative resources.
+    // Use an absolute URL so it works regardless of Vite base path.
+    try {
+        const abs = new URL(url, window.location.href);
+        return new URL('.', abs).href;
+    } catch (_) {
+        const i = url.lastIndexOf('/');
+        return i >= 0 ? url.slice(0, i + 1) : '';
+    }
+}
 
-export function loadRobot(url,meshDir,color) {
+function patchColladaText(text) {
+    // Work around malformed COLLADA exported with empty unit meter value:
+    //   <unit name="" meter=""></unit>
+    // Three.js ColladaLoader may propagate NaNs in transforms when meter is empty.
+    // Replace with a sane default.
+    return text.replace(
+        /<unit\s+name=""\s+meter=""\s*>\s*<\/unit>/gi,
+        '<unit name="meter" meter="1"/>'
+    );
+}
+
+function loadColladaPatched(url) {
+    return fetch(url)
+        .then((r) => {
+            if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`);
+            return r.text();
+        })
+        .then((text) => {
+            const patched = patchColladaText(text);
+            return new Promise((resolve, reject) => {
+                loader.parse(patched, resourceBasePath(url), (data) => resolve(data), (err) => reject(err));
+            });
+        });
+}
+
+export function loadRobot(url, meshDir, color) {
     return fetch(url).then((response) => {
         return response.json()
     }).then(treeInfo => {
-        return new Tree(treeInfo,meshDir)
+        return new Tree(treeInfo, meshDir)
     }).then(tree => {
         const promises = []
-        for (let i=0;i<tree.Links.length;i++) {
+        for (let i = 0; i < tree.Links.length; i++) {
             if (tree.Links[i].hasMesh) {
                 promises.push(
-                    new Promise((resolve, reject) => {
-                        return loader.load(tree.Links[i].meshfile, data => resolve(data), null, reject)
-                    }).then((mesh) => {
-                        formatMesh(mesh,color,i)
-                        tree.Links[i].origin.add(mesh.scene);
-                    })
+                    loadColladaPatched(tree.Links[i].meshfile)
+                        .then((mesh) => {
+                            formatMesh(mesh, color, i)
+                            tree.Links[i].origin.add(mesh.scene);
+                        })
                 )
             }
         }
-        return [tree,Promise.all(promises)]
+        return [tree, Promise.all(promises)]
     })
 }
 
-function formatMesh(mesh,color,id){
+function formatMesh(mesh, color, id) {
     let mat = new THREE.MeshStandardMaterial();
     mat.color.setRGB(color[0], color[1], color[2]);
     mat.emissiveIntensity = 0.5;
@@ -189,14 +225,14 @@ function formatMesh(mesh,color,id){
             o.userData.highlightMaterial = mat.clone();
             o.userData.highlightMaterial.color.setRGB(0.96470588, 0.59215686, 0.12156863)
             o.userData.lowlightMaterial = mat.clone();
-            o.userData.lowlightMaterial.color.setRGB(0.012,0.66,0.95)
+            o.userData.lowlightMaterial.color.setRGB(0.012, 0.66, 0.95)
             o.userData.index = id
             o.material = o.userData.resetMaterial;
             o.material = mat;
             o.geometry.computeVertexNormals();
         }
     });
-    mesh.scene.rotateX(Math.PI/2);
+    mesh.scene.rotateX(Math.PI / 2);
 }
 
 
