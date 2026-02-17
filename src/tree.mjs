@@ -4,6 +4,22 @@ import { Object3D, Vector3 } from "three";
 
 const loader = new ColladaLoader();
 
+
+function ensureVec3(arr, label = '') {
+    if (!Array.isArray(arr) || arr.length !== 3) {
+        if (label) console.warn(`Invalid vec3 for ${label} (len=${Array.isArray(arr) ? arr.length : 'n/a'}), defaulting to [0,0,0]`);
+        return [0, 0, 0];
+    }
+    const v0 = Number(arr[0]);
+    const v1 = Number(arr[1]);
+    const v2 = Number(arr[2]);
+    return [
+        Number.isFinite(v0) ? v0 : 0,
+        Number.isFinite(v1) ? v1 : 0,
+        Number.isFinite(v2) ? v2 : 0,
+    ];
+}
+
 class Joint {
     constructor(info) {
 
@@ -17,11 +33,15 @@ class Joint {
         this.lower = info.lower
         this.upper = info.upper
         this.range = this.upper - this.lower
-        this.axis = new Vector3(info.axis[0], info.axis[1], info.axis[2]);
+        const axis = ensureVec3(info.axis, `${this.name}.axis`);
+        this.axis = new Vector3(axis[0], axis[1], axis[2]);
+
+        const xyz = ensureVec3(info.xyz, `${this.name}.xyz`);
+        const rpy = ensureVec3(info.rpy, `${this.name}.rpy`);
 
         this.origin = new Object3D()
-        this.origin.position.set(info.xyz[0], info.xyz[1], info.xyz[2]);
-        this.origin.rotation.set(info.rpy[0], info.rpy[1], info.rpy[2]);
+        this.origin.position.set(xyz[0], xyz[1], xyz[2]);
+        this.origin.rotation.set(rpy[0], rpy[1], rpy[2]);
 
         this.pre = new Object3D()
         this.pre.add(this.origin)
@@ -47,15 +67,19 @@ class Joint {
 class Link {
     constructor(info, meshDir) {
         this.name = info.name;
+        const v0 = (info.visual && info.visual[0]) ? info.visual[0] : { pos: [0,0,0], rot: [0,0,0], mesh: '__NoMeshFile__' };
+        const pos = ensureVec3(v0.pos, `${this.name}.visual.pos`);
+        const rot = ensureVec3(v0.rot, `${this.name}.visual.rot`);
+
         this.origin = new Object3D()
-        this.origin.position.set(info.visual[0].pos[0], info.visual[0].pos[1], info.visual[0].pos[2]);
-        this.origin.rotation.set(info.visual[0].rot[0], info.visual[0].rot[1], info.visual[0].rot[2]);
+        this.origin.position.set(pos[0], pos[1], pos[2]);
+        this.origin.rotation.set(rot[0], rot[1], rot[2]);
         this.Children = []
         this.ChildrenID = []
         this.ParentID = -1;
-        this.hasMesh = info.visual[0].mesh !== "__NoMeshFile__" && info.visual[0].mesh !== "__cylinder__" && info.visual[0].mesh !== "__box__" && info.visual[0].mesh !== "__sphere__";
+        this.hasMesh = v0.mesh !== "__NoMeshFile__" && v0.mesh !== "__cylinder__" && v0.mesh !== "__box__" && v0.mesh !== "__sphere__";
         if (this.hasMesh) {
-            this.meshfile = meshDir + info.visual[0].mesh;
+            this.meshfile = meshDir + v0.mesh;
         }
     }
 }
@@ -175,6 +199,7 @@ function patchColladaText(text) {
     );
 }
 
+
 function loadColladaPatched(url) {
     return fetch(url)
         .then((r) => {
@@ -184,7 +209,19 @@ function loadColladaPatched(url) {
         .then((text) => {
             const patched = patchColladaText(text);
             return new Promise((resolve, reject) => {
-                loader.parse(patched, resourceBasePath(url), (data) => resolve(data), (err) => reject(err));
+                const base = resourceBasePath(url);
+
+                // ColladaLoader.parse API differs across three.js versions:
+                // - some return the parsed object synchronously
+                // - some use onLoad/onError callbacks
+                try {
+                    const finalize = (data) => resolve(data);
+
+                    const maybe = loader.parse(patched, base, (data) => finalize(data), (err) => reject(err));
+                    if (maybe) finalize(maybe);
+                } catch (e) {
+                    reject(e);
+                }
             });
         });
 }
