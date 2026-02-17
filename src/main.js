@@ -18,12 +18,14 @@ let singletonApp = null;
 export async function init(robotPath, opts = {}) {
   if (singletonApp) {
     if (robotPath) await singletonApp.loadRobot(robotPath);
+    window.__zooApp = singletonApp;
     return singletonApp;
   }
 
   const app = new ZooApp(opts);
   await app.start(robotPath);
   singletonApp = app;
+  window.__zooApp = app;
   return app;
 }
 
@@ -119,7 +121,7 @@ class ZooApp {
     this.setStatus(`Loading ${robotPath}...`);
 
     try {
-      const [tree] = await KT.loadRobot(`${robotPath}tree.json`, robotPath, [0.5, 0.5, 0.5]);
+      const [tree, meshesPromise] = await KT.loadRobot(`${robotPath}tree.json`, robotPath, [0.5, 0.5, 0.5]);
 
       // If another load started while we were fetching, drop this result.
       if (mySeq !== this.loadSeq) {
@@ -135,12 +137,62 @@ class ZooApp {
       this.selection = -1;
       this.rebuildJointGui(tree);
 
-      this.setStatus(`Loaded ${robotPath}`);
+      // Meshes are async; don't block init/hot-swap on them.
+      this.setStatus(`Loaded ${robotPath} (loading meshes...)`);
+
+      meshesPromise
+        .then(() => {
+          if (mySeq !== this.loadSeq) {
+            this.disposeTree(tree);
+            return;
+          }
+          this.fitCameraToObject(tree.Root, 1.4);
+          this.setStatus(`Loaded ${robotPath}`);
+          this.render();
+        })
+        .catch((e) => {
+          console.warn('Some meshes failed to load:', e);
+          if (mySeq !== this.loadSeq) {
+            this.disposeTree(tree);
+            return;
+          }
+          this.fitCameraToObject(tree.Root, 1.4);
+          this.setStatus(`Loaded ${robotPath} (some meshes failed)`);
+          this.render();
+        });
+
       this.render();
     } catch (e) {
       console.error('Failed to load robot:', robotPath, e);
       this.setStatus(`Failed to load ${robotPath}`);
     }
+  }
+
+  fitCameraToObject(object, offset = 1.25) {
+    if (!this.camera || !this.controls || !object) return;
+
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    if (!Number.isFinite(maxDim) || maxDim <= 0) {
+      console.warn('fitCameraToObject: invalid bounds', { size, center });
+      return;
+    }
+
+    const fov = this.camera.fov * (Math.PI / 180);
+    let cameraZ = Math.abs((maxDim / 2) / Math.tan(fov / 2));
+    cameraZ *= offset;
+
+    this.controls.target.copy(center);
+    this.camera.position.set(center.x, center.y, center.z + cameraZ);
+
+    const minZ = box.min.z;
+    const cameraToFarEdge = (minZ < 0) ? (-minZ + cameraZ) : (cameraZ - minZ);
+    this.camera.far = Math.max(1000, cameraToFarEdge * 3);
+    this.camera.updateProjectionMatrix();
+    this.controls.update();
   }
 
   clearRobot() {
