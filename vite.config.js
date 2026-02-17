@@ -10,6 +10,9 @@ export default {
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
+
+    // Vite host check (fix "Blocked request. This host (\"phoenix\") is not allowed")
+    allowedHosts: ['phoenix', 'localhost', '127.0.0.1', '192.168.0.8', '100.114.94.57'],
   },
 
   // Keep preview aligned too (optional but convenient).
@@ -17,5 +20,6 @@ export default {
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
+    allowedHosts: ['phoenix', 'localhost', '127.0.0.1', '192.168.0.8', '100.114.94.57'],
   },
 };
