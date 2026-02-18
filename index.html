@@ -49,10 +49,8 @@
 <body>
 
 <div id="robot-ui">
-    <label for="robotSelect">Local</label>
+    <label for="robotSelect">Uploaded</label>
     <select id="robotSelect">
-        <option value="page1/">page1</option>
-        <option value="page2/">page2</option>
         <option value="uploaded/">uploaded (latest)</option>
     </select>
     <button id="reloadBtn" type="button">Reload</button>
@@ -131,7 +129,7 @@
 
     const setStatus = (s) => { statusEl.textContent = s ?? ''; };
 
-    const appPromise = init(select.value, { setStatus });
+    const appPromise = init('uploaded/', { setStatus });
 
     const loadSelected = async () => {
         const app = await appPromise;
