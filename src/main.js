@@ -314,18 +314,26 @@ class ZooApp {
   }
 
   placeDraggableNearRobot(object) {
-    if (!this.draggableCylinder || !object) return;
+    if (!this.draggableCylinder || !object || !this.camera || !this.controls) return;
+
     const box = new THREE.Box3().setFromObject(object);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     if (!Number.isFinite(size.x) || !Number.isFinite(size.y) || !Number.isFinite(size.z)) return;
 
-    const zCandidate = Number.isFinite(box.min.z) ? box.min.z + 0.12 : center.z + 0.12;
-    this.draggableCylinder.position.set(
-      center.x + Math.max(0.55, size.x * 1.2),
-      center.y + Math.max(0.18, size.y * 0.35),
-      Number.isFinite(zCandidate) ? Math.max(0.18, center.z + size.z * 0.6) : 0.18
-    );
+    const toCamera = new THREE.Vector3().subVectors(this.camera.position, this.controls.target).normalize();
+    const right = new THREE.Vector3().crossVectors(this.camera.up, toCamera).normalize();
+
+    const lateral = Math.max(0.18, size.x * 0.35);
+    const vertical = Math.max(0.08, size.z * 0.15);
+
+    this.draggableCylinder.position.copy(center)
+      .addScaledVector(right, lateral)
+      .addScaledVector(this.camera.up, vertical);
+
+    if (!Number.isFinite(this.draggableCylinder.position.z)) {
+      this.draggableCylinder.position.z = 0.18;
+    }
   }
 
   getPointerNDC(event) {
