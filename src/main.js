@@ -54,6 +54,19 @@ class ZooApp {
 
     this.loadSeq = 0;
 
+    // IK demo/session state (kinematics_go backend)
+    this.ikSessionId = null;
+    this.ikDemoActive = false;
+    this.ikObjectiveName = 'head';
+    this.ikRootName = 'body';
+    this.ikTargetCenter = new THREE.Vector3();
+    this.ikTargetRadius = 0.11;
+    this.ikTargetAngle = 0;
+    this.ikLastSolveMs = 0;
+    this.ikSolveIntervalMs = 80;
+    this.ikSolveInFlight = false;
+    this.ikTargetMarker = null;
+
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
     this._onResize = () => this.onResize();
@@ -162,6 +175,9 @@ class ZooApp {
         });
 
       this.render();
+
+      // Auto-start IK demo for bridge validation.
+      await this.setupIKDemo(robotPath);
     } catch (e) {
       console.error('Failed to load robot:', robotPath, e);
       this.setStatus(`Failed to load ${robotPath}`);
@@ -209,6 +225,7 @@ class ZooApp {
     }
 
     this.selection = -1;
+    this.stopIKDemo();
 
     if (this.gui) {
       this.gui.destroy();
@@ -277,6 +294,132 @@ class ZooApp {
           tree.Joints[jointIndex].SetByUnitScaling(this.API.angle);
           this.render();
         });
+    }
+  }
+
+  normaliseRobotAbsoluteTreePath(robotPath) {
+    const normalized = this.normaliseRobotPath(robotPath);
+    return `/home/stuart/KinematicTrees/Zoo/public/${normalized}tree.json`;
+  }
+
+  getLinkWorldPositionByName(linkName) {
+    if (!this.tree || !linkName) return null;
+    const idx = this.tree.Links.findIndex((l) => l?.name === linkName);
+    if (idx < 0) return null;
+    const out = new THREE.Vector3();
+    this.tree.Links[idx].origin.getWorldPosition(out);
+    return out;
+  }
+
+  ensureIKTargetMarker() {
+    if (this.ikTargetMarker) return;
+    const g = new THREE.SphereGeometry(0.02, 18, 18);
+    const m = new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0x553300, emissiveIntensity: 0.5 });
+    this.ikTargetMarker = new THREE.Mesh(g, m);
+    this.ikTargetMarker.name = 'ik-target-marker';
+    this.scene.add(this.ikTargetMarker);
+  }
+
+  async setupIKDemo(robotPath) {
+    this.stopIKDemo();
+    if (!this.tree) return;
+
+    // currently configured for MIRO-style models
+    const objectivePos = this.getLinkWorldPositionByName(this.ikObjectiveName);
+    if (!objectivePos) {
+      this.setStatus(`IK demo skipped: objective '${this.ikObjectiveName}' not found`);
+      return;
+    }
+
+    const payload = {
+      treeJsonPath: this.normaliseRobotAbsoluteTreePath(robotPath),
+      rootLink: this.ikRootName,
+      objectiveLinks: [this.ikObjectiveName],
+      populationSize: 20,
+      generations: 4,
+      elites: 3,
+      collisionSigma: 0,
+    };
+
+    try {
+      const res = await fetch('http://localhost:8090/session/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        this.setStatus(`IK session create failed: ${t || res.status}`);
+        return;
+      }
+      const data = await res.json();
+      this.ikSessionId = data.sessionId;
+      this.ikTargetCenter.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
+      this.ikTargetAngle = 0;
+      this.ikLastSolveMs = 0;
+      this.ikDemoActive = true;
+      this.ensureIKTargetMarker();
+      this.ikTargetMarker.visible = true;
+      this.ikTargetMarker.position.copy(this.ikTargetCenter);
+      this.setStatus(`IK demo active (${this.ikObjectiveName})`);
+    } catch (e) {
+      console.error(e);
+      this.setStatus(`IK demo unavailable: ${e.message || e}`);
+    }
+  }
+
+  stopIKDemo() {
+    this.ikDemoActive = false;
+    this.ikSolveInFlight = false;
+    this.ikSessionId = null;
+    if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
+  }
+
+  applyIKSolution(solution) {
+    if (!this.tree || !Array.isArray(solution)) return;
+    const n = Math.min(solution.length, this.tree.Joints.length);
+    for (let i = 0; i < n; i++) {
+      const joint = this.tree.Joints[i];
+      if (!joint) continue;
+      joint.Set(solution[i]);
+    }
+  }
+
+  async tickIKDemo() {
+    if (!this.ikDemoActive || !this.ikSessionId || this.ikSolveInFlight) return;
+
+    const now = performance.now();
+    if (now - this.ikLastSolveMs < this.ikSolveIntervalMs) return;
+    this.ikLastSolveMs = now;
+
+    this.ikTargetAngle += 0.08;
+    const target = {
+      x: this.ikTargetCenter.x,
+      y: this.ikTargetCenter.y + Math.sin(this.ikTargetAngle) * this.ikTargetRadius,
+      z: this.ikTargetCenter.z + Math.cos(this.ikTargetAngle) * this.ikTargetRadius,
+    };
+    if (this.ikTargetMarker) this.ikTargetMarker.position.set(target.x, target.y, target.z);
+
+    this.ikSolveInFlight = true;
+    try {
+      const res = await fetch('http://localhost:8090/session/solve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: this.ikSessionId,
+          objectiveIndex: 0,
+          target: [target.x, target.y, target.z],
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.ok) {
+        this.applyIKSolution(data.solution || []);
+      }
+    } catch (e) {
+      console.warn('IK solve error', e);
+    } finally {
+      this.ikSolveInFlight = false;
     }
   }
 
@@ -352,6 +495,8 @@ class ZooApp {
   animate() {
     this.timer.update();
     this.controls.update();
+
+    this.tickIKDemo();
 
     this.directionalLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
     this.render();

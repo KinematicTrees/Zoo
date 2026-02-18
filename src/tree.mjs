@@ -50,8 +50,7 @@ class Joint {
     }
 
     Set(angle) {
-        if (this.type !== "revolute") {
-            console.log("Not a revolute joint.")
+        if (this.type !== "revolute" && this.type !== "continuous") {
             return
         }
         this.post.setRotationFromAxisAngle(this.axis, angle);
