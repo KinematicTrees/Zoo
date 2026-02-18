@@ -320,10 +320,11 @@ class ZooApp {
     const center = box.getCenter(new THREE.Vector3());
     if (!Number.isFinite(size.x) || !Number.isFinite(size.y) || !Number.isFinite(size.z)) return;
 
+    const zCandidate = Number.isFinite(box.min.z) ? box.min.z + 0.12 : center.z + 0.12;
     this.draggableCylinder.position.set(
       center.x + Math.max(0.25, size.x * 0.65),
       center.y,
-      Math.max(0.12, box.min.z + 0.12)
+      Number.isFinite(zCandidate) ? Math.max(0.12, zCandidate) : 0.12
     );
   }
 
