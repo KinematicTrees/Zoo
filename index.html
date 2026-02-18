@@ -6,7 +6,6 @@
     <style>
         body { margin: 0; overflow: hidden; }
 
-        /* Simple overlay UI */
         #robot-ui {
             position: fixed;
             top: 12px;
@@ -15,6 +14,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
             padding: 8px 10px;
             background: rgba(0,0,0,0.55);
             color: white;
@@ -22,28 +22,42 @@
             border-radius: 8px;
             font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
             backdrop-filter: blur(6px);
+            max-width: calc(100vw - 24px);
         }
-        #robot-ui select, #robot-ui button {
+        #robot-ui select, #robot-ui button, #robot-ui input {
             font: inherit;
         }
         #robot-status {
-            opacity: 0.8;
-            min-width: 90px;
+            opacity: 0.9;
+            min-width: 220px;
         }
     </style>
 </head>
 <body>
 
 <div id="robot-ui">
-    <label for="robotSelect">Robot</label>
+    <label for="robotSelect">Local</label>
     <select id="robotSelect">
         <option value="page1/">page1</option>
         <option value="page2/">page2</option>
         <option value="uploaded/">uploaded (latest)</option>
     </select>
     <button id="reloadBtn" type="button">Reload</button>
+
+    <span>|</span>
+
+    <label for="centralSelect">Central</label>
+    <select id="centralSelect">
+        <option value="">(none loaded)</option>
+    </select>
+    <button id="refreshCentralBtn" type="button">Refresh Central</button>
+    <button id="loadCentralBtn" type="button">Load Central</button>
+
+    <span>|</span>
+
     <input id="uploadFolder" type="file" webkitdirectory directory multiple style="max-width:220px" />
     <button id="processBtn" type="button">Process Upload</button>
+
     <span id="robot-status"></span>
 </div>
 
@@ -54,11 +68,13 @@
     const reloadBtn = document.getElementById('reloadBtn');
     const processBtn = document.getElementById('processBtn');
     const uploadFolder = document.getElementById('uploadFolder');
+    const centralSelect = document.getElementById('centralSelect');
+    const refreshCentralBtn = document.getElementById('refreshCentralBtn');
+    const loadCentralBtn = document.getElementById('loadCentralBtn');
     const statusEl = document.getElementById('robot-status');
 
     const setStatus = (s) => { statusEl.textContent = s ?? ''; };
 
-    // Start app with initial selection
     const appPromise = init(select.value, { setStatus });
 
     const loadSelected = async () => {
@@ -96,10 +112,45 @@
         setStatus('Uploaded model processed and loaded');
     }
 
-    // Hot-swap on selection change
-    select.addEventListener('change', loadSelected);
+    async function refreshCentralList() {
+        setStatus('Refreshing central list...');
+        const res = await fetch('http://localhost:8080/api/robots/list');
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(txt || `list failed (${res.status})`);
+        }
+        const models = await res.json();
 
-    // Optional manual reload
+        centralSelect.innerHTML = '';
+        if (!models || models.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '(no central models found)';
+            centralSelect.appendChild(opt);
+            setStatus('No central models found');
+            return;
+        }
+
+        for (const m of models) {
+            const opt = document.createElement('option');
+            opt.value = m.robotPath;
+            opt.textContent = m.label;
+            centralSelect.appendChild(opt);
+        }
+        setStatus(`Central models: ${models.length}`);
+    }
+
+    async function loadCentralSelection() {
+        if (!centralSelect.value) {
+            setStatus('No central model selected');
+            return;
+        }
+        const app = await appPromise;
+        await app.loadRobot(centralSelect.value);
+        setStatus(`Loaded central: ${centralSelect.options[centralSelect.selectedIndex].text}`);
+    }
+
+    select.addEventListener('change', loadSelected);
     reloadBtn.addEventListener('click', loadSelected);
 
     processBtn.addEventListener('click', async () => {
@@ -109,6 +160,30 @@
             console.error(e);
             setStatus(`Process failed: ${e.message || e}`);
         }
+    });
+
+    refreshCentralBtn.addEventListener('click', async () => {
+        try {
+            await refreshCentralList();
+        } catch (e) {
+            console.error(e);
+            setStatus(`Central refresh failed: ${e.message || e}`);
+        }
+    });
+
+    loadCentralBtn.addEventListener('click', async () => {
+        try {
+            await loadCentralSelection();
+        } catch (e) {
+            console.error(e);
+            setStatus(`Central load failed: ${e.message || e}`);
+        }
+    });
+
+    // Prime central list at startup
+    refreshCentralList().catch((e) => {
+        console.warn(e);
+        setStatus('Central list unavailable');
     });
 </script>
 
