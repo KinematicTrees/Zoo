@@ -292,15 +292,15 @@ class ZooApp {
   }
 
   addDraggableCylinder() {
-    const radius = 0.06;
-    const height = 0.24;
+    const radius = 0.08;
+    const height = 0.30;
     const geometry = new THREE.CylinderGeometry(radius, radius, height, 24);
     const material = new THREE.MeshStandardMaterial({
-      color: 0x2ea8ff,
-      emissive: 0x0f3b66,
-      emissiveIntensity: 0.6,
-      roughness: 0.35,
-      metalness: 0.2,
+      color: 0xff4fd8,
+      emissive: 0x4a0b36,
+      emissiveIntensity: 0.85,
+      roughness: 0.25,
+      metalness: 0.15,
     });
 
     const cylinder = new THREE.Mesh(geometry, material);
@@ -322,9 +322,9 @@ class ZooApp {
 
     const zCandidate = Number.isFinite(box.min.z) ? box.min.z + 0.12 : center.z + 0.12;
     this.draggableCylinder.position.set(
-      center.x + Math.max(0.25, size.x * 0.65),
-      center.y,
-      Number.isFinite(zCandidate) ? Math.max(0.12, zCandidate) : 0.12
+      center.x + Math.max(0.55, size.x * 1.2),
+      center.y + Math.max(0.18, size.y * 0.35),
+      Number.isFinite(zCandidate) ? Math.max(0.18, center.z + size.z * 0.6) : 0.18
     );
   }
 
