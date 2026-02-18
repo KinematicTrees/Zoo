@@ -42,6 +42,8 @@
         <option value="uploaded/">uploaded (latest)</option>
     </select>
     <button id="reloadBtn" type="button">Reload</button>
+    <input id="uploadFolder" type="file" webkitdirectory directory multiple style="max-width:220px" />
+    <button id="processBtn" type="button">Process Upload</button>
     <span id="robot-status"></span>
 </div>
 
@@ -50,6 +52,8 @@
 
     const select = document.getElementById('robotSelect');
     const reloadBtn = document.getElementById('reloadBtn');
+    const processBtn = document.getElementById('processBtn');
+    const uploadFolder = document.getElementById('uploadFolder');
     const statusEl = document.getElementById('robot-status');
 
     const setStatus = (s) => { statusEl.textContent = s ?? ''; };
@@ -62,11 +66,50 @@
         await app.loadRobot(select.value);
     };
 
+    async function processUploadedFolder() {
+        const files = uploadFolder.files;
+        if (!files || files.length === 0) {
+            setStatus('Pick a folder first');
+            return;
+        }
+
+        const form = new FormData();
+        for (const f of files) {
+            const rel = f.webkitRelativePath || f.name;
+            form.append('files', f);
+            form.append('paths', rel);
+        }
+
+        setStatus(`Processing ${files.length} files...`);
+        const res = await fetch('http://localhost:8080/api/process', {
+            method: 'POST',
+            body: form,
+        });
+
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(txt || `process failed (${res.status})`);
+        }
+
+        select.value = 'uploaded/';
+        await loadSelected();
+        setStatus('Uploaded model processed and loaded');
+    }
+
     // Hot-swap on selection change
     select.addEventListener('change', loadSelected);
 
     // Optional manual reload
     reloadBtn.addEventListener('click', loadSelected);
+
+    processBtn.addEventListener('click', async () => {
+        try {
+            await processUploadedFolder();
+        } catch (e) {
+            console.error(e);
+            setStatus(`Process failed: ${e.message || e}`);
+        }
+    });
 </script>
 
 </body>
