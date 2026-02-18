@@ -143,6 +143,7 @@ class ZooApp {
       this.clearRobot();
       this.tree = tree;
       this.robotGroup.add(tree.Root);
+      this.placeDraggableNearRobot(tree.Root);
 
       this.selection = -1;
       this.rebuildJointGui(tree);
@@ -295,9 +296,11 @@ class ZooApp {
     const height = 0.24;
     const geometry = new THREE.CylinderGeometry(radius, radius, height, 24);
     const material = new THREE.MeshStandardMaterial({
-      color: 0x33aaff,
-      roughness: 0.4,
-      metalness: 0.15,
+      color: 0x2ea8ff,
+      emissive: 0x0f3b66,
+      emissiveIntensity: 0.6,
+      roughness: 0.35,
+      metalness: 0.2,
     });
 
     const cylinder = new THREE.Mesh(geometry, material);
@@ -308,6 +311,20 @@ class ZooApp {
     this.scene.add(cylinder);
     this.draggableCylinder = cylinder;
     this.renderer.domElement.style.cursor = 'grab';
+  }
+
+  placeDraggableNearRobot(object) {
+    if (!this.draggableCylinder || !object) return;
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    if (!Number.isFinite(size.x) || !Number.isFinite(size.y) || !Number.isFinite(size.z)) return;
+
+    this.draggableCylinder.position.set(
+      center.x + Math.max(0.25, size.x * 0.65),
+      center.y,
+      Math.max(0.12, box.min.z + 0.12)
+    );
   }
 
   getPointerNDC(event) {
