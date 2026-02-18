@@ -31,6 +31,19 @@
             opacity: 0.9;
             min-width: 220px;
         }
+
+        dialog {
+            border: 1px solid #666;
+            border-radius: 10px;
+            padding: 14px;
+            width: min(460px, 92vw);
+        }
+        dialog::backdrop { background: rgba(0,0,0,0.45); }
+        .form-grid { display: grid; gap: 8px; }
+        .form-grid label { font-weight: 600; }
+        .form-grid input, .form-grid textarea { width: 100%; box-sizing: border-box; }
+        .actions { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+        .hint { font-size: 12px; color: #555; }
     </style>
 </head>
 <body>
@@ -57,9 +70,47 @@
 
     <input id="uploadFolder" type="file" webkitdirectory directory multiple style="max-width:220px" />
     <button id="processBtn" type="button">Process Upload</button>
+    <button id="submitCentralBtn" type="button">Submit to Central</button>
 
     <span id="robot-status"></span>
 </div>
+
+<dialog id="submitDialog">
+    <form id="submitForm" method="dialog">
+        <h3>Submit uploaded model to central repo</h3>
+        <p class="hint">Password check is currently bypassed in testing mode unless server config disables bypass.</p>
+        <div class="form-grid">
+            <div>
+                <label for="manufacturer">Manufacturer</label>
+                <input id="manufacturer" name="manufacturer" required value="Consequential Robotics" />
+            </div>
+            <div>
+                <label for="modelName">Model name</label>
+                <input id="modelName" name="modelName" required value="Miro" />
+            </div>
+            <div>
+                <label for="version">Version</label>
+                <input id="version" name="version" required value="v1" />
+            </div>
+            <div>
+                <label for="tags">Tags (comma-separated)</label>
+                <input id="tags" name="tags" value="uploaded" />
+            </div>
+            <div>
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="2">Submitted from unified page</textarea>
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="testing bypass currently active" />
+            </div>
+        </div>
+        <div class="actions">
+            <button type="button" id="cancelSubmitBtn">Cancel</button>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</dialog>
 
 <script type="module">
     import { init } from '/src/main.js';
@@ -67,11 +118,16 @@
     const select = document.getElementById('robotSelect');
     const reloadBtn = document.getElementById('reloadBtn');
     const processBtn = document.getElementById('processBtn');
+    const submitCentralBtn = document.getElementById('submitCentralBtn');
     const uploadFolder = document.getElementById('uploadFolder');
     const centralSelect = document.getElementById('centralSelect');
     const refreshCentralBtn = document.getElementById('refreshCentralBtn');
     const loadCentralBtn = document.getElementById('loadCentralBtn');
     const statusEl = document.getElementById('robot-status');
+
+    const submitDialog = document.getElementById('submitDialog');
+    const submitForm = document.getElementById('submitForm');
+    const cancelSubmitBtn = document.getElementById('cancelSubmitBtn');
 
     const setStatus = (s) => { statusEl.textContent = s ?? ''; };
 
@@ -150,6 +206,43 @@
         setStatus(`Loaded central: ${centralSelect.options[centralSelect.selectedIndex].text}`);
     }
 
+    function openSubmitDialog() {
+        submitDialog.showModal();
+    }
+
+    async function submitToCentral(formData) {
+        const payload = {
+            manufacturer: formData.get('manufacturer'),
+            modelName: formData.get('modelName'),
+            version: formData.get('version'),
+            description: formData.get('description'),
+            password: formData.get('password'),
+            tags: String(formData.get('tags') || '')
+                .split(',')
+                .map(t => t.trim())
+                .filter(Boolean),
+        };
+
+        setStatus('Submitting uploaded model to central repo...');
+        const res = await fetch('http://localhost:8080/api/robots/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.message || `submit failed (${res.status})`);
+        }
+
+        await refreshCentralList();
+        if (data.robotPath) {
+            centralSelect.value = data.robotPath;
+            await loadCentralSelection();
+        }
+        setStatus('Submitted to central and loaded');
+    }
+
     select.addEventListener('change', loadSelected);
     reloadBtn.addEventListener('click', loadSelected);
 
@@ -177,6 +270,25 @@
         } catch (e) {
             console.error(e);
             setStatus(`Central load failed: ${e.message || e}`);
+        }
+    });
+
+    submitCentralBtn.addEventListener('click', () => {
+        openSubmitDialog();
+    });
+
+    cancelSubmitBtn.addEventListener('click', () => {
+        submitDialog.close();
+    });
+
+    submitForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await submitToCentral(new FormData(submitForm));
+            submitDialog.close();
+        } catch (err) {
+            console.error(err);
+            setStatus(`Submit failed: ${err.message || err}`);
         }
     });
 
