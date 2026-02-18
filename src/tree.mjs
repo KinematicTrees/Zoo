@@ -79,7 +79,8 @@ class Link {
         this.ParentID = -1;
         this.hasMesh = v0.mesh !== "__NoMeshFile__" && v0.mesh !== "__cylinder__" && v0.mesh !== "__box__" && v0.mesh !== "__sphere__";
         if (this.hasMesh) {
-            this.meshfile = meshDir + v0.mesh;
+            const relMesh = v0.mesh.includes('/') ? v0.mesh : `meshes/${v0.mesh}`;
+            this.meshfile = meshDir + relMesh;
         }
     }
 }
