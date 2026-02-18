@@ -52,10 +52,17 @@ class ZooApp {
     this.coords = new THREE.Vector2();
     this.raycaster = new THREE.Raycaster();
 
+    this.dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    this.dragOffset = new THREE.Vector3();
+    this.dragPoint = new THREE.Vector3();
+    this.draggingCylinder = false;
+    this.draggableCylinder = null;
+
     this.loadSeq = 0;
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
+    this._onMouseUp = () => this.onMouseUp();
     this._onResize = () => this.onResize();
   }
 
@@ -88,9 +95,12 @@ class ZooApp {
     this.robotGroup.name = 'robot-root';
     this.scene.add(this.robotGroup);
 
+    this.addDraggableCylinder();
+
     // INPUT
     this.renderer.domElement.addEventListener('mousemove', this._onMouseMove);
     this.renderer.domElement.addEventListener('mousedown', this._onMouseDown);
+    window.addEventListener('mouseup', this._onMouseUp);
     window.addEventListener('resize', this._onResize);
 
     // ANIMATION LOOP
@@ -280,15 +290,46 @@ class ZooApp {
     }
   }
 
-  onMouseMove(event) {
-    if (!this.tree) return;
+  addDraggableCylinder() {
+    const radius = 0.06;
+    const height = 0.24;
+    const geometry = new THREE.CylinderGeometry(radius, radius, height, 24);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x33aaff,
+      roughness: 0.4,
+      metalness: 0.15,
+    });
 
+    const cylinder = new THREE.Mesh(geometry, material);
+    cylinder.name = 'draggable-cylinder';
+    cylinder.position.set(0.35, 0, height * 0.5);
+    cylinder.userData.dragHeight = height * 0.5;
+
+    this.scene.add(cylinder);
+    this.draggableCylinder = cylinder;
+    this.renderer.domElement.style.cursor = 'grab';
+  }
+
+  getPointerNDC(event) {
     this.coords.set(
       (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
       -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1
     );
+  }
 
+  onMouseMove(event) {
+    this.getPointerNDC(event);
     this.raycaster.setFromCamera(this.coords, this.camera);
+
+    if (this.draggingCylinder && this.draggableCylinder) {
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, this.dragPoint)) {
+        this.draggableCylinder.position.x = this.dragPoint.x - this.dragOffset.x;
+        this.draggableCylinder.position.y = this.dragPoint.y - this.dragOffset.y;
+      }
+      return;
+    }
+
+    if (!this.tree) return;
     const intersections = this.raycaster.intersectObjects(this.robotGroup.children, true);
 
     // RESET NON HOVER
@@ -314,14 +355,22 @@ class ZooApp {
   }
 
   onMouseDown(event) {
+    this.getPointerNDC(event);
+    this.raycaster.setFromCamera(this.coords, this.camera);
+
+    if (this.draggableCylinder) {
+      const hit = this.raycaster.intersectObject(this.draggableCylinder, false);
+      if (hit.length > 0) {
+        this.draggingCylinder = true;
+        this.controls.enabled = false;
+        this.renderer.domElement.style.cursor = 'grabbing';
+        this.dragOffset.copy(hit[0].point).sub(this.draggableCylinder.position);
+        return;
+      }
+    }
+
     if (!this.tree) return;
 
-    this.coords.set(
-      (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
-      -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1
-    );
-
-    this.raycaster.setFromCamera(this.coords, this.camera);
     const intersections = this.raycaster.intersectObjects(this.robotGroup.children, true);
 
     if (intersections.length === 0) {
@@ -338,6 +387,14 @@ class ZooApp {
         o.material = o.userData.lowlightMaterial;
       }
     });
+  }
+
+  onMouseUp() {
+    if (this.draggingCylinder) {
+      this.draggingCylinder = false;
+      this.controls.enabled = true;
+      this.renderer.domElement.style.cursor = 'grab';
+    }
   }
 
   onResize() {
