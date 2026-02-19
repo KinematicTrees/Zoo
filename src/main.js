@@ -59,16 +59,18 @@ class ZooApp {
     this.ikDemoActive = false;
     this.ikObjectiveName = 'head';
     this.ikRootName = 'body';
-    this.ikTargetCenter = new THREE.Vector3();
-    this.ikTargetRadius = 0.11;
-    this.ikTargetAngle = 0;
+    this.ikTargetPosition = new THREE.Vector3();
     this.ikLastSolveMs = 0;
     this.ikSolveIntervalMs = 80;
     this.ikSolveInFlight = false;
     this.ikTargetMarker = null;
+    this.ikDraggingTarget = false;
+    this.ikDragPlane = new THREE.Plane();
+    this.ikDragPoint = new THREE.Vector3();
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
+    this._onMouseUp = () => this.onMouseUp();
     this._onResize = () => this.onResize();
   }
 
@@ -104,6 +106,8 @@ class ZooApp {
     // INPUT
     this.renderer.domElement.addEventListener('mousemove', this._onMouseMove);
     this.renderer.domElement.addEventListener('mousedown', this._onMouseDown);
+    this.renderer.domElement.addEventListener('mouseup', this._onMouseUp);
+    this.renderer.domElement.addEventListener('mouseleave', this._onMouseUp);
     window.addEventListener('resize', this._onResize);
 
     // ANIMATION LOOP
@@ -354,14 +358,13 @@ class ZooApp {
       }
       const data = await res.json();
       this.ikSessionId = data.sessionId;
-      this.ikTargetCenter.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
-      this.ikTargetAngle = 0;
+      this.ikTargetPosition.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
       this.ikLastSolveMs = 0;
       this.ikDemoActive = true;
       this.ensureIKTargetMarker();
       this.ikTargetMarker.visible = true;
-      this.ikTargetMarker.position.copy(this.ikTargetCenter);
-      this.setStatus(`IK demo active (${this.ikObjectiveName})`);
+      this.ikTargetMarker.position.copy(this.ikTargetPosition);
+      this.setStatus(`IK demo active (${this.ikObjectiveName}) — drag target sphere with mouse`);
     } catch (e) {
       console.error(e);
       this.setStatus(`IK demo unavailable: ${e.message || e}`);
@@ -372,6 +375,8 @@ class ZooApp {
     this.ikDemoActive = false;
     this.ikSolveInFlight = false;
     this.ikSessionId = null;
+    this.ikDraggingTarget = false;
+    if (this.controls) this.controls.enabled = true;
     if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
   }
 
@@ -392,13 +397,12 @@ class ZooApp {
     if (now - this.ikLastSolveMs < this.ikSolveIntervalMs) return;
     this.ikLastSolveMs = now;
 
-    this.ikTargetAngle += 0.08;
     const target = {
-      x: this.ikTargetCenter.x,
-      y: this.ikTargetCenter.y + Math.sin(this.ikTargetAngle) * this.ikTargetRadius,
-      z: this.ikTargetCenter.z + Math.cos(this.ikTargetAngle) * this.ikTargetRadius,
+      x: this.ikTargetPosition.x,
+      y: this.ikTargetPosition.y,
+      z: this.ikTargetPosition.z,
     };
-    if (this.ikTargetMarker) this.ikTargetMarker.position.set(target.x, target.y, target.z);
+    if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
     this.ikSolveInFlight = true;
     try {
@@ -432,6 +436,15 @@ class ZooApp {
     );
 
     this.raycaster.setFromCamera(this.coords, this.camera);
+
+    if (this.ikDraggingTarget && this.ikTargetMarker?.visible) {
+      if (this.raycaster.ray.intersectPlane(this.ikDragPlane, this.ikDragPoint)) {
+        this.ikTargetPosition.copy(this.ikDragPoint);
+        this.ikTargetMarker.position.copy(this.ikTargetPosition);
+      }
+      return;
+    }
+
     const intersections = this.raycaster.intersectObjects(this.robotGroup.children, true);
 
     // RESET NON HOVER
@@ -465,6 +478,18 @@ class ZooApp {
     );
 
     this.raycaster.setFromCamera(this.coords, this.camera);
+
+    if (this.ikDemoActive && this.ikTargetMarker?.visible) {
+      const targetHit = this.raycaster.intersectObject(this.ikTargetMarker, false);
+      if (targetHit.length > 0) {
+        this.ikDraggingTarget = true;
+        this.controls.enabled = false;
+        const planeNormal = this.camera.getWorldDirection(new THREE.Vector3());
+        this.ikDragPlane.setFromNormalAndCoplanarPoint(planeNormal, this.ikTargetMarker.position);
+        return;
+      }
+    }
+
     const intersections = this.raycaster.intersectObjects(this.robotGroup.children, true);
 
     if (intersections.length === 0) {
@@ -481,6 +506,11 @@ class ZooApp {
         o.material = o.userData.lowlightMaterial;
       }
     });
+  }
+
+  onMouseUp() {
+    this.ikDraggingTarget = false;
+    if (this.controls) this.controls.enabled = true;
   }
 
   onResize() {
