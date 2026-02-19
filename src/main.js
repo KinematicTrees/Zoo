@@ -75,6 +75,8 @@ class ZooApp {
     this.ikConnectorMid = new THREE.Vector3();
     this.ikConnectorDir = new THREE.Vector3();
     this.ikUpAxis = new THREE.Vector3(0, 1, 0);
+    this.visualToIkQuat = new THREE.Quaternion();
+    this.ikToVisualQuat = new THREE.Quaternion();
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
     this._onMouseUp = () => this.onMouseUp();
@@ -108,6 +110,11 @@ class ZooApp {
     // VISUAL ROOT GROUP: single place for any global visual transform.
     this.visualRoot = new THREE.Group();
     this.visualRoot.name = 'visual-root';
+    // Single global visual transform relative to IK frame.
+    this.visualRoot.rotation.set(-Math.PI / 2, 0, 0);
+    this.visualRoot.updateMatrixWorld(true);
+    this.visualRoot.getWorldQuaternion(this.ikToVisualQuat);
+    this.visualToIkQuat.copy(this.ikToVisualQuat).invert();
     this.scene.add(this.visualRoot);
 
     // ROBOT ROOT GROUP (so we can hot-swap cleanly)
@@ -328,6 +335,10 @@ class ZooApp {
     return out;
   }
 
+  visualToIk(v) {
+    return v.clone().applyQuaternion(this.visualToIkQuat);
+  }
+
   getObjectiveAnchorWorldPosition() {
     const idx = this.tree?.Links?.findIndex((l) => l?.name === this.ikObjectiveName);
     if (idx == null || idx < 0) return null;
@@ -486,10 +497,11 @@ class ZooApp {
     if (now - this.ikLastSolveMs < this.ikSolveIntervalMs) return;
     this.ikLastSolveMs = now;
 
+    const targetIk = this.visualToIk(this.ikTargetPosition);
     const target = {
-      x: this.ikTargetPosition.x,
-      y: this.ikTargetPosition.y,
-      z: this.ikTargetPosition.z,
+      x: targetIk.x,
+      y: targetIk.y,
+      z: targetIk.z,
     };
     if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
