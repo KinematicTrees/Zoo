@@ -229,6 +229,21 @@ function loadColladaPatched(url) {
         });
 }
 
+function applySTLPreset(group) {
+    const preset = (typeof window !== 'undefined' && window.__zooStlPreset) ? window.__zooStlPreset : 'rx+90';
+    if (preset === 'none') return;
+    if (preset === 'rx-90') {
+        group.rotateX(-Math.PI / 2);
+        return;
+    }
+    if (preset === 'rx+180') {
+        group.rotateX(Math.PI);
+        return;
+    }
+    // default: rx+90
+    group.rotateX(Math.PI / 2);
+}
+
 function loadSTLAsScene(url) {
     return fetch(url)
         .then((r) => {
@@ -240,9 +255,9 @@ function loadSTLAsScene(url) {
             const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
             const group = new THREE.Group();
             group.add(mesh);
-            // STL has no up-axis metadata; apply visual-only correction so STL aligns with DAE path.
-            // Keep this lightweight and renderer-local (does not affect IK/model coordinate system).
-            group.rotateX(Math.PI / 2);
+            // STL has no up-axis metadata; apply visual-only correction preset.
+            // Renderer-local only (does not affect IK/model coordinate system).
+            applySTLPreset(group);
             return { scene: group, __sourceFormat: 'stl' };
         });
 }
