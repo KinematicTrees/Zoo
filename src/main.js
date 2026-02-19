@@ -65,6 +65,7 @@ class ZooApp {
     this.ikSolveInFlight = false;
     this.ikTargetMarker = null;
     this.ikTargetConnector = null;
+    this.ikObjectiveMarker = null;
     this.ikDraggingTarget = false;
     this.ikDragPlane = new THREE.Plane();
     this.ikDragPoint = new THREE.Vector3();
@@ -324,6 +325,25 @@ class ZooApp {
     return out;
   }
 
+  getObjectiveAnchorWorldPosition() {
+    const idx = this.tree?.Links?.findIndex((l) => l?.name === this.ikObjectiveName);
+    if (idx == null || idx < 0) return null;
+    const linkOrigin = this.tree.Links[idx].origin;
+    if (!linkOrigin) return null;
+
+    // Prefer visual anchor (mesh bounds center) for connector so it matches what user sees.
+    const box = new THREE.Box3().setFromObject(linkOrigin);
+    if (!box.isEmpty()) {
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      return center;
+    }
+
+    const out = new THREE.Vector3();
+    linkOrigin.getWorldPosition(out);
+    return out;
+  }
+
   ensureIKTargetMarker() {
     if (this.ikTargetMarker) return;
     const g = new THREE.SphereGeometry(0.02, 18, 18);
@@ -343,19 +363,31 @@ class ZooApp {
     this.scene.add(this.ikTargetConnector);
   }
 
+  ensureIKObjectiveMarker() {
+    if (this.ikObjectiveMarker) return;
+    const g = new THREE.SphereGeometry(0.012, 14, 14);
+    const m = new THREE.MeshStandardMaterial({ color: 0x44aaff, emissive: 0x001133, emissiveIntensity: 0.55 });
+    this.ikObjectiveMarker = new THREE.Mesh(g, m);
+    this.ikObjectiveMarker.name = 'ik-objective-marker';
+    this.scene.add(this.ikObjectiveMarker);
+  }
+
   updateIKTargetConnector() {
     if (!this.ikDemoActive || !this.ikTargetMarker?.visible || !this.ikTargetConnector) {
       if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
+      if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
+    if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
       return;
     }
 
-    const objectivePos = this.getLinkWorldPositionByName(this.ikObjectiveName);
+    const objectivePos = this.getObjectiveAnchorWorldPosition();
     if (!objectivePos) {
       this.ikTargetConnector.visible = false;
       return;
     }
 
     this.ikConnectorStart.copy(objectivePos);
+    if (this.ikObjectiveMarker) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
     this.ikConnectorEnd.copy(this.ikTargetPosition);
     this.ikConnectorDir.subVectors(this.ikConnectorEnd, this.ikConnectorStart);
 
@@ -377,7 +409,7 @@ class ZooApp {
     if (!this.tree) return;
 
     // currently configured for MIRO-style models
-    const objectivePos = this.getLinkWorldPositionByName(this.ikObjectiveName);
+    const objectivePos = this.getObjectiveAnchorWorldPosition();
     if (!objectivePos) {
       this.setStatus(`IK demo skipped: objective '${this.ikObjectiveName}' not found`);
       return;
@@ -411,9 +443,11 @@ class ZooApp {
       this.ikDemoActive = true;
       this.ensureIKTargetMarker();
       this.ensureIKTargetConnector();
+      this.ensureIKObjectiveMarker();
       this.ikTargetMarker.visible = true;
       this.ikTargetMarker.position.copy(this.ikTargetPosition);
       this.updateIKTargetConnector();
+      if (this.ikObjectiveMarker && objectivePos) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
       this.setStatus(`IK demo active (${this.ikObjectiveName}) — drag target sphere with mouse`);
     } catch (e) {
       console.error(e);
@@ -429,6 +463,8 @@ class ZooApp {
     if (this.controls) this.controls.enabled = true;
     if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
     if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
+      if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
+    if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
   }
 
   applyIKSolution(solution) {
@@ -500,6 +536,7 @@ class ZooApp {
         this.ikTargetPosition.copy(this.ikDragPoint);
         this.ikTargetMarker.position.copy(this.ikTargetPosition);
         this.updateIKTargetConnector();
+      if (this.ikObjectiveMarker && objectivePos) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
       }
       return;
     }
@@ -587,6 +624,7 @@ class ZooApp {
 
     this.tickIKDemo();
     this.updateIKTargetConnector();
+      if (this.ikObjectiveMarker && objectivePos) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
 
     this.directionalLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
     this.render();
