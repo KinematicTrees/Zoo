@@ -402,7 +402,7 @@ class ZooApp {
     this.debugLineOriginToSent = mkLine(0xbb66ff, 'ik-debug-line-origin-sent');
   }
 
-  updateDebugVisuals(objectiveOriginPos, objectiveVisualPos) {
+  updateDebugVisuals(objectiveOriginPos, objectiveVisualPos, connectorStartPos = null, connectorEndPos = null) {
     if (!this.ikDemoActive) return;
     this.ensureDebugVisuals();
     if (!this.debugGroup) return;
@@ -433,8 +433,9 @@ class ZooApp {
       line.geometry.computeBoundingSphere();
     };
 
+    const hasConnector = !!connectorStartPos && !!connectorEndPos;
     setLine(this.debugLineOriginToVisual, objectiveOriginPos, objectiveVisualPos, hasOrigin && hasVisual);
-    setLine(this.debugLineVisualToTarget, objectiveVisualPos, this.ikSentTargetPosition, hasVisual);
+    setLine(this.debugLineVisualToTarget, hasConnector ? connectorStartPos : objectiveVisualPos, hasConnector ? connectorEndPos : this.ikSentTargetPosition, hasConnector || hasVisual);
     setLine(this.debugLineOriginToSent, objectiveOriginPos, this.ikSentTargetPosition, hasOrigin);
   }
 
@@ -500,7 +501,7 @@ class ZooApp {
     this.ikTargetConnector.position.copy(this.ikConnectorMid);
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
-    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos);
+    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos, this.ikConnectorStart, this.ikConnectorEnd);
   }
 
   async setupIKDemo(robotPath) {
