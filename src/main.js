@@ -473,15 +473,15 @@ class ZooApp {
     if (this.debugGroup) this.debugGroup.visible = true;
 
     const objectiveOriginPos = this.getLinkWorldPositionByName(this.ikObjectiveName);
-    const objectiveVisualPos = this.getObjectiveAnchorWorldPosition();
-    if (!objectiveOriginPos) {
+    const objectivePos = this.getObjectiveAnchorWorldPosition();
+    if (!objectivePos) {
       this.ikTargetConnector.visible = false;
-      this.updateDebugVisuals(null, objectiveVisualPos);
+      this.updateDebugVisuals(objectiveOriginPos, null);
       return;
     }
 
-    this.ikConnectorStart.copy(objectiveOriginPos);
-    if (this.ikObjectiveMarker) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectiveOriginPos); }
+    this.ikConnectorStart.copy(objectivePos);
+    if (this.ikObjectiveMarker) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
     this.ikConnectorEnd.copy(this.ikTargetPosition);
     this.ikConnectorDir.subVectors(this.ikConnectorEnd, this.ikConnectorStart);
 
@@ -496,7 +496,7 @@ class ZooApp {
     this.ikTargetConnector.position.copy(this.ikConnectorMid);
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
-    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos);
+    this.updateDebugVisuals(objectiveOriginPos, objectivePos);
   }
 
   async setupIKDemo(robotPath) {
@@ -504,8 +504,8 @@ class ZooApp {
     if (!this.tree) return;
 
     // currently configured for MIRO-style models
-    const objectiveOriginPos = this.getLinkWorldPositionByName(this.ikObjectiveName);
-    if (!objectiveOriginPos) {
+    const objectivePos = this.getObjectiveAnchorWorldPosition();
+    if (!objectivePos) {
       this.setStatus(`IK demo skipped: objective '${this.ikObjectiveName}' not found`);
       return;
     }
@@ -533,7 +533,7 @@ class ZooApp {
       }
       const data = await res.json();
       this.ikSessionId = data.sessionId;
-      this.ikTargetPosition.copy(objectiveOriginPos).add(new THREE.Vector3(0.12, 0, 0.06));
+      this.ikTargetPosition.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
       this.ikLastSolveMs = 0;
       this.ikDemoActive = true;
       this.ensureIKTargetMarker();
