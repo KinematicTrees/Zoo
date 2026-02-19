@@ -240,7 +240,10 @@ function loadSTLAsScene(url) {
             const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
             const group = new THREE.Group();
             group.add(mesh);
-            return { scene: group };
+            // STL has no up-axis metadata; apply visual-only correction so STL aligns with DAE path.
+            // Keep this lightweight and renderer-local (does not affect IK/model coordinate system).
+            group.rotateX(Math.PI / 2);
+            return { scene: group, __sourceFormat: 'stl' };
         });
 }
 
@@ -263,7 +266,7 @@ export function loadRobot(url, meshDir, color) {
                 promises.push(
                     loadMeshAsset(tree.Links[i].meshfile)
                         .then((mesh) => {
-                            formatMesh(mesh, color, i)
+                            formatMesh(mesh, color, i, mesh.__sourceFormat)
                             tree.Links[i].origin.add(mesh.scene);
                         })
                 )
@@ -273,7 +276,7 @@ export function loadRobot(url, meshDir, color) {
     })
 }
 
-function formatMesh(mesh, color, id) {
+function formatMesh(mesh, color, id, sourceFormat = 'dae') {
     let mat = new THREE.MeshStandardMaterial();
     mat.color.setRGB(color[0], color[1], color[2]);
     mat.emissiveIntensity = 0.5;
@@ -294,7 +297,9 @@ function formatMesh(mesh, color, id) {
             o.geometry.computeVertexNormals();
         }
     });
-    mesh.scene.rotateX(Math.PI / 2);
+    // Historical viewer alignment for DAE assets.
+    // For STL we already applied an extra source correction above, then keep this common alignment.
+    mesh.scene.rotateX(Math.PI/2);
 }
 
 
