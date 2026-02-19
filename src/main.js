@@ -78,6 +78,9 @@ class ZooApp {
     this.ikWorldToModelQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
     this.ikModelToWorldQuat = this.ikWorldToModelQuat.clone().invert();
     this.ikSentTargetPosition = new THREE.Vector3();
+    this.ikObjectivePositionModel = new THREE.Vector3();
+    this.ikObjectiveAnchorOffsetModel = new THREE.Vector3();
+    this.ikObjectiveAnchorOffsetReady = false;
 
     // Visual debug helpers (always-on for this investigation)
     this.debugGroup = null;
@@ -473,7 +476,8 @@ class ZooApp {
     if (this.debugGroup) this.debugGroup.visible = true;
 
     const objectiveOriginPos = this.getLinkWorldPositionByName(this.ikObjectiveName);
-    const objectivePos = this.getObjectiveAnchorWorldPosition();
+    const objectiveVisualPos = this.getObjectiveAnchorWorldPosition();
+    const objectivePos = this.getSolverAnchoredObjectiveWorldPosition() || objectiveVisualPos;
     if (!objectivePos) {
       this.ikTargetConnector.visible = false;
       this.updateDebugVisuals(objectiveOriginPos, null);
@@ -496,7 +500,7 @@ class ZooApp {
     this.ikTargetConnector.position.copy(this.ikConnectorMid);
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
-    this.updateDebugVisuals(objectiveOriginPos, objectivePos);
+    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos);
   }
 
   async setupIKDemo(robotPath) {
@@ -533,6 +537,8 @@ class ZooApp {
       }
       const data = await res.json();
       this.ikSessionId = data.sessionId;
+      this.ikObjectiveAnchorOffsetReady = false;
+      this.ikObjectiveAnchorOffsetModel.set(0, 0, 0);
       this.ikTargetPosition.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
       this.ikLastSolveMs = 0;
       this.ikDemoActive = true;
@@ -576,6 +582,16 @@ class ZooApp {
     return v.clone().applyQuaternion(this.ikWorldToModelQuat);
   }
 
+  ikModelToWorld(v) {
+    return v.clone().applyQuaternion(this.ikModelToWorldQuat);
+  }
+
+  getSolverAnchoredObjectiveWorldPosition() {
+    if (!this.ikObjectiveAnchorOffsetReady) return null;
+    const anchoredModel = this.ikObjectivePositionModel.clone().add(this.ikObjectiveAnchorOffsetModel);
+    return this.ikModelToWorld(anchoredModel);
+  }
+
   async tickIKDemo() {
     if (!this.ikDemoActive || !this.ikSessionId || this.ikSolveInFlight) return;
 
@@ -606,6 +622,17 @@ class ZooApp {
       });
       if (!res.ok) return;
       const data = await res.json();
+      if (Array.isArray(data?.objectivePosition) && data.objectivePosition.length === 3) {
+        this.ikObjectivePositionModel.set(data.objectivePosition[0], data.objectivePosition[1], data.objectivePosition[2]);
+        if (!this.ikObjectiveAnchorOffsetReady) {
+          const visualAnchorWorld = this.getObjectiveAnchorWorldPosition();
+          if (visualAnchorWorld) {
+            const visualAnchorModel = this.ikWorldToModel(visualAnchorWorld);
+            this.ikObjectiveAnchorOffsetModel.copy(visualAnchorModel).sub(this.ikObjectivePositionModel);
+            this.ikObjectiveAnchorOffsetReady = true;
+          }
+        }
+      }
       if (data?.ok) {
         this.applyIKSolution(data.solution || []);
       }
