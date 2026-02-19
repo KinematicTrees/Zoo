@@ -64,9 +64,15 @@ class ZooApp {
     this.ikSolveIntervalMs = 80;
     this.ikSolveInFlight = false;
     this.ikTargetMarker = null;
+    this.ikTargetConnector = null;
     this.ikDraggingTarget = false;
     this.ikDragPlane = new THREE.Plane();
     this.ikDragPoint = new THREE.Vector3();
+    this.ikConnectorStart = new THREE.Vector3();
+    this.ikConnectorEnd = new THREE.Vector3();
+    this.ikConnectorMid = new THREE.Vector3();
+    this.ikConnectorDir = new THREE.Vector3();
+    this.ikUpAxis = new THREE.Vector3(0, 1, 0);
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
@@ -324,6 +330,45 @@ class ZooApp {
     this.scene.add(this.ikTargetMarker);
   }
 
+  ensureIKTargetConnector() {
+    if (this.ikTargetConnector) return;
+    // Radius = 1/5 of target sphere radius (0.02 / 5 = 0.004)
+    const g = new THREE.CylinderGeometry(0.004, 0.004, 1.0, 14);
+    const m = new THREE.MeshStandardMaterial({ color: 0x66ccff, emissive: 0x112233, emissiveIntensity: 0.35 });
+    this.ikTargetConnector = new THREE.Mesh(g, m);
+    this.ikTargetConnector.name = 'ik-target-connector';
+    this.scene.add(this.ikTargetConnector);
+  }
+
+  updateIKTargetConnector() {
+    if (!this.ikDemoActive || !this.ikTargetMarker?.visible || !this.ikTargetConnector) {
+      if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
+      return;
+    }
+
+    const objectivePos = this.getLinkWorldPositionByName(this.ikObjectiveName);
+    if (!objectivePos) {
+      this.ikTargetConnector.visible = false;
+      return;
+    }
+
+    this.ikConnectorStart.copy(objectivePos);
+    this.ikConnectorEnd.copy(this.ikTargetPosition);
+    this.ikConnectorDir.subVectors(this.ikConnectorEnd, this.ikConnectorStart);
+
+    const length = this.ikConnectorDir.length();
+    if (!Number.isFinite(length) || length < 1e-6) {
+      this.ikTargetConnector.visible = false;
+      return;
+    }
+
+    this.ikTargetConnector.visible = true;
+    this.ikConnectorMid.copy(this.ikConnectorStart).add(this.ikConnectorEnd).multiplyScalar(0.5);
+    this.ikTargetConnector.position.copy(this.ikConnectorMid);
+    this.ikTargetConnector.scale.set(1, length, 1);
+    this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
+  }
+
   async setupIKDemo(robotPath) {
     this.stopIKDemo();
     if (!this.tree) return;
@@ -362,8 +407,10 @@ class ZooApp {
       this.ikLastSolveMs = 0;
       this.ikDemoActive = true;
       this.ensureIKTargetMarker();
+      this.ensureIKTargetConnector();
       this.ikTargetMarker.visible = true;
       this.ikTargetMarker.position.copy(this.ikTargetPosition);
+      this.updateIKTargetConnector();
       this.setStatus(`IK demo active (${this.ikObjectiveName}) — drag target sphere with mouse`);
     } catch (e) {
       console.error(e);
@@ -378,6 +425,7 @@ class ZooApp {
     this.ikDraggingTarget = false;
     if (this.controls) this.controls.enabled = true;
     if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
+    if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
   }
 
   applyIKSolution(solution) {
@@ -441,6 +489,7 @@ class ZooApp {
       if (this.raycaster.ray.intersectPlane(this.ikDragPlane, this.ikDragPoint)) {
         this.ikTargetPosition.copy(this.ikDragPoint);
         this.ikTargetMarker.position.copy(this.ikTargetPosition);
+        this.updateIKTargetConnector();
       }
       return;
     }
@@ -527,6 +576,7 @@ class ZooApp {
     this.controls.update();
 
     this.tickIKDemo();
+    this.updateIKTargetConnector();
 
     this.directionalLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
     this.render();
