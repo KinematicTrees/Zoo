@@ -74,14 +74,13 @@ class ZooApp {
     this.ikConnectorMid = new THREE.Vector3();
     this.ikConnectorDir = new THREE.Vector3();
     this.ikUpAxis = new THREE.Vector3(0, 1, 0);
-    // IK frame is canonical; visual world transform is derived from tree root transform.
-    // Defaults to identity until a tree is loaded, then refreshed from this.tree.Root world quaternion.
+    // IK frame is canonical; visual world transform is derived from tree root world pose.
+    // Defaults to identity/zero until a tree is loaded, then refreshed from this.tree.Root.
     this.ikWorldToModelQuat = new THREE.Quaternion();
     this.ikModelToWorldQuat = new THREE.Quaternion();
+    this.ikModelToWorldPos = new THREE.Vector3();
     this.ikSentTargetPosition = new THREE.Vector3();
     this.ikObjectivePositionModel = new THREE.Vector3();
-    this.ikObjectiveAnchorOffsetModel = new THREE.Vector3();
-    this.ikObjectiveAnchorOffsetReady = false;
 
     // Visual debug helpers (always-on for this investigation)
     this.debugGroup = null;
@@ -348,12 +347,16 @@ class ZooApp {
     if (!this.tree?.Root) {
       this.ikModelToWorldQuat.identity();
       this.ikWorldToModelQuat.identity();
+      this.ikModelToWorldPos.set(0, 0, 0);
       return;
     }
     const rootWorldQuat = new THREE.Quaternion();
+    const rootWorldPos = new THREE.Vector3();
     this.tree.Root.getWorldQuaternion(rootWorldQuat);
+    this.tree.Root.getWorldPosition(rootWorldPos);
     this.ikModelToWorldQuat.copy(rootWorldQuat);
     this.ikWorldToModelQuat.copy(rootWorldQuat).invert();
+    this.ikModelToWorldPos.copy(rootWorldPos);
   }
 
   getObjectiveLinkNode() {
@@ -506,9 +509,10 @@ class ZooApp {
     }
     if (this.debugGroup) this.debugGroup.visible = true;
 
+    this.refreshIKFrameTransforms();
     const objectiveOriginPos = this.getLinkWorldPositionByName(this.ikObjectiveName);
     const objectiveVisualPos = this.getObjectiveAnchorWorldPosition();
-    const objectivePos = this.getSolverAnchoredObjectiveWorldPosition() || objectiveVisualPos;
+    const objectivePos = this.getSolverAnchoredObjectiveWorldPosition();
     if (!objectivePos) {
       this.ikTargetConnector.visible = false;
       this.updateDebugVisuals(objectiveOriginPos, null);
@@ -569,8 +573,8 @@ class ZooApp {
       }
       const data = await res.json();
       this.ikSessionId = data.sessionId;
-      this.ikObjectiveAnchorOffsetReady = false;
-      this.ikObjectiveAnchorOffsetModel.set(0, 0, 0);
+      this.refreshIKFrameTransforms();
+      this.ikObjectivePositionModel.copy(this.ikWorldToModel(objectivePos));
       this.ikTargetPosition.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
       this.ikSentTargetPosition.copy(this.ikTargetPosition);
       this.ikLastSolveMs = 0;
@@ -611,18 +615,16 @@ class ZooApp {
   }
 
   ikWorldToModel(v) {
-    // only rotation needed (no root translation currently)
-    return v.clone().applyQuaternion(this.ikWorldToModelQuat);
+    return v.clone().sub(this.ikModelToWorldPos).applyQuaternion(this.ikWorldToModelQuat);
   }
 
   ikModelToWorld(v) {
-    return v.clone().applyQuaternion(this.ikModelToWorldQuat);
+    return v.clone().applyQuaternion(this.ikModelToWorldQuat).add(this.ikModelToWorldPos);
   }
 
   getSolverAnchoredObjectiveWorldPosition() {
-    if (!this.ikObjectiveAnchorOffsetReady) return null;
-    const anchoredModel = this.ikObjectivePositionModel.clone().add(this.ikObjectiveAnchorOffsetModel);
-    return this.ikModelToWorld(anchoredModel);
+    if (!Number.isFinite(this.ikObjectivePositionModel.x) || !Number.isFinite(this.ikObjectivePositionModel.y) || !Number.isFinite(this.ikObjectivePositionModel.z)) return null;
+    return this.ikModelToWorld(this.ikObjectivePositionModel);
   }
 
   async tickIKDemo() {
@@ -632,6 +634,7 @@ class ZooApp {
     if (now - this.ikLastSolveMs < this.ikSolveIntervalMs) return;
     this.ikLastSolveMs = now;
 
+    this.refreshIKFrameTransforms();
     const targetWorld = this.ikTargetPosition;
     const targetModel = this.ikWorldToModel(targetWorld);
     const target = {
@@ -639,7 +642,7 @@ class ZooApp {
       y: targetModel.y,
       z: targetModel.z,
     };
-    this.ikSentTargetPosition.copy(targetModel).applyQuaternion(this.ikModelToWorldQuat);
+    this.ikSentTargetPosition.copy(this.ikModelToWorld(targetModel));
     if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
     this.ikSolveInFlight = true;
@@ -657,14 +660,6 @@ class ZooApp {
       const data = await res.json();
       if (Array.isArray(data?.objectivePosition) && data.objectivePosition.length === 3) {
         this.ikObjectivePositionModel.set(data.objectivePosition[0], data.objectivePosition[1], data.objectivePosition[2]);
-        if (!this.ikObjectiveAnchorOffsetReady) {
-          const visualAnchorWorld = this.getObjectiveAnchorWorldPosition();
-          if (visualAnchorWorld) {
-            const visualAnchorModel = this.ikWorldToModel(visualAnchorWorld);
-            this.ikObjectiveAnchorOffsetModel.copy(visualAnchorModel).sub(this.ikObjectivePositionModel);
-            this.ikObjectiveAnchorOffsetReady = true;
-          }
-        }
       }
       if (data?.ok) {
         this.applyIKSolution(data.solution || []);
