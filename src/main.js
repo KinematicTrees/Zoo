@@ -434,7 +434,7 @@ class ZooApp {
     };
 
     setLine(this.debugLineOriginToVisual, objectiveOriginPos, objectiveVisualPos, hasOrigin && hasVisual);
-    setLine(this.debugLineVisualToTarget, objectiveVisualPos, this.ikTargetPosition, hasVisual);
+    setLine(this.debugLineVisualToTarget, objectiveVisualPos, this.ikSentTargetPosition, hasVisual);
     setLine(this.debugLineOriginToSent, objectiveOriginPos, this.ikSentTargetPosition, hasOrigin);
   }
 
@@ -486,7 +486,7 @@ class ZooApp {
 
     this.ikConnectorStart.copy(objectivePos);
     if (this.ikObjectiveMarker) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
-    this.ikConnectorEnd.copy(this.ikTargetPosition);
+    this.ikConnectorEnd.copy(this.ikSentTargetPosition);
     this.ikConnectorDir.subVectors(this.ikConnectorEnd, this.ikConnectorStart);
 
     const length = this.ikConnectorDir.length();
@@ -540,6 +540,7 @@ class ZooApp {
       this.ikObjectiveAnchorOffsetReady = false;
       this.ikObjectiveAnchorOffsetModel.set(0, 0, 0);
       this.ikTargetPosition.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
+      this.ikSentTargetPosition.copy(this.ikTargetPosition);
       this.ikLastSolveMs = 0;
       this.ikDemoActive = true;
       this.ensureIKTargetMarker();
