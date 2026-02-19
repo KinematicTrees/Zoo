@@ -118,6 +118,7 @@ class ZooApp {
     this.renderer.domElement.addEventListener('mousedown', this._onMouseDown);
     this.renderer.domElement.addEventListener('mouseup', this._onMouseUp);
     this.renderer.domElement.addEventListener('mouseleave', this._onMouseUp);
+    window.addEventListener('mouseup', this._onMouseUp);
     window.addEventListener('resize', this._onResize);
 
     // ANIMATION LOOP
@@ -447,7 +448,6 @@ class ZooApp {
       this.ikTargetMarker.visible = true;
       this.ikTargetMarker.position.copy(this.ikTargetPosition);
       this.updateIKTargetConnector();
-      if (this.ikObjectiveMarker && objectivePos) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
       this.setStatus(`IK demo active (${this.ikObjectiveName}) — drag target sphere with mouse`);
     } catch (e) {
       console.error(e);
@@ -536,7 +536,6 @@ class ZooApp {
         this.ikTargetPosition.copy(this.ikDragPoint);
         this.ikTargetMarker.position.copy(this.ikTargetPosition);
         this.updateIKTargetConnector();
-      if (this.ikObjectiveMarker && objectivePos) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
       }
       return;
     }
@@ -624,7 +623,6 @@ class ZooApp {
 
     this.tickIKDemo();
     this.updateIKTargetConnector();
-      if (this.ikObjectiveMarker && objectivePos) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
 
     this.directionalLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
     this.render();
