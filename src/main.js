@@ -92,6 +92,8 @@ class ZooApp {
     this.debugLineOriginToVisual = null;
     this.debugLineVisualToTarget = null;
     this.debugLineOriginToSent = null;
+    this.debugCylinderEndA = new THREE.Vector3();
+    this.debugCylinderEndB = new THREE.Vector3();
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
@@ -501,7 +503,14 @@ class ZooApp {
     this.ikTargetConnector.position.copy(this.ikConnectorMid);
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
-    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos, this.ikConnectorStart, this.ikConnectorEnd);
+
+    // Derive debug endpoints from the rendered cylinder transform itself
+    // so the green line is guaranteed to represent the exact visual axis.
+    this.ikTargetConnector.updateMatrixWorld(true);
+    this.debugCylinderEndA.set(0, -0.5, 0).applyMatrix4(this.ikTargetConnector.matrixWorld);
+    this.debugCylinderEndB.set(0, 0.5, 0).applyMatrix4(this.ikTargetConnector.matrixWorld);
+
+    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos, this.debugCylinderEndA, this.debugCylinderEndB);
   }
 
   async setupIKDemo(robotPath) {
