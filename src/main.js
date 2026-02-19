@@ -77,6 +77,18 @@ class ZooApp {
     // Viewer root is rotated -90deg about X in tree.mjs; IK service expects unrotated tree frame.
     this.ikWorldToModelQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
     this.ikModelToWorldQuat = this.ikWorldToModelQuat.clone().invert();
+    this.ikSentTargetPosition = new THREE.Vector3();
+
+    // Visual debug helpers (always-on for this investigation)
+    this.debugGroup = null;
+    this.debugObjectiveOriginMarker = null;
+    this.debugObjectiveVisualMarker = null;
+    this.debugSentTargetMarker = null;
+    this.debugWorldAxes = null;
+    this.debugObjectiveAxes = null;
+    this.debugLineOriginToVisual = null;
+    this.debugLineVisualToTarget = null;
+    this.debugLineOriginToSent = null;
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
@@ -345,6 +357,84 @@ class ZooApp {
     return out;
   }
 
+  ensureDebugVisuals() {
+    if (this.debugGroup) return;
+
+    const mkMarker = (r, color, name) => {
+      const g = new THREE.SphereGeometry(r, 12, 12);
+      const m = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.25 });
+      const mesh = new THREE.Mesh(g, m);
+      mesh.name = name;
+      this.debugGroup.add(mesh);
+      return mesh;
+    };
+
+    const mkLine = (color, name) => {
+      const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+      const m = new THREE.LineBasicMaterial({ color });
+      const line = new THREE.Line(g, m);
+      line.name = name;
+      this.debugGroup.add(line);
+      return line;
+    };
+
+    this.debugGroup = new THREE.Group();
+    this.debugGroup.name = 'ik-debug-group';
+    this.scene.add(this.debugGroup);
+
+    this.debugWorldAxes = new THREE.AxesHelper(0.08);
+    this.debugWorldAxes.name = 'ik-debug-world-axes';
+    this.debugGroup.add(this.debugWorldAxes);
+
+    this.debugObjectiveAxes = new THREE.AxesHelper(0.06);
+    this.debugObjectiveAxes.name = 'ik-debug-objective-axes';
+    this.debugGroup.add(this.debugObjectiveAxes);
+
+    this.debugObjectiveOriginMarker = mkMarker(0.008, 0xff3344, 'ik-debug-objective-origin'); // red
+    this.debugObjectiveVisualMarker = mkMarker(0.010, 0x33aaff, 'ik-debug-objective-visual'); // blue
+    this.debugSentTargetMarker = mkMarker(0.009, 0xaa44ff, 'ik-debug-target-sent'); // magenta
+
+    this.debugLineOriginToVisual = mkLine(0xff8844, 'ik-debug-line-origin-visual');
+    this.debugLineVisualToTarget = mkLine(0x22ff88, 'ik-debug-line-visual-target');
+    this.debugLineOriginToSent = mkLine(0xbb66ff, 'ik-debug-line-origin-sent');
+  }
+
+  updateDebugVisuals(objectiveOriginPos, objectiveVisualPos) {
+    if (!this.ikDemoActive) return;
+    this.ensureDebugVisuals();
+    if (!this.debugGroup) return;
+
+    const hasOrigin = !!objectiveOriginPos;
+    const hasVisual = !!objectiveVisualPos;
+
+    if (this.debugObjectiveOriginMarker) this.debugObjectiveOriginMarker.visible = hasOrigin;
+    if (this.debugObjectiveVisualMarker) this.debugObjectiveVisualMarker.visible = hasVisual;
+    if (this.debugSentTargetMarker) this.debugSentTargetMarker.visible = true;
+
+    if (hasOrigin) {
+      this.debugObjectiveOriginMarker.position.copy(objectiveOriginPos);
+      this.debugObjectiveAxes.visible = true;
+      this.debugObjectiveAxes.position.copy(objectiveOriginPos);
+    } else {
+      this.debugObjectiveAxes.visible = false;
+    }
+
+    if (hasVisual) this.debugObjectiveVisualMarker.position.copy(objectiveVisualPos);
+    this.debugSentTargetMarker.position.copy(this.ikSentTargetPosition);
+
+    const setLine = (line, a, b, visible) => {
+      if (!line) return;
+      line.visible = !!visible;
+      if (!visible) return;
+      line.geometry.setFromPoints([a, b]);
+      line.geometry.computeBoundingSphere();
+    };
+
+    setLine(this.debugLineOriginToVisual, objectiveOriginPos, objectiveVisualPos, hasOrigin && hasVisual);
+    setLine(this.debugLineVisualToTarget, objectiveVisualPos, this.ikTargetPosition, hasVisual);
+    setLine(this.debugLineOriginToSent, objectiveOriginPos, this.ikSentTargetPosition, hasOrigin);
+  }
+
   ensureIKTargetMarker() {
     if (this.ikTargetMarker) return;
     const g = new THREE.SphereGeometry(0.02, 18, 18);
@@ -377,13 +467,16 @@ class ZooApp {
     if (!this.ikDemoActive || !this.ikTargetMarker?.visible || !this.ikTargetConnector) {
       if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
       if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
-    if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
+      if (this.debugGroup) this.debugGroup.visible = false;
       return;
     }
+    if (this.debugGroup) this.debugGroup.visible = true;
 
+    const objectiveOriginPos = this.getLinkWorldPositionByName(this.ikObjectiveName);
     const objectivePos = this.getObjectiveAnchorWorldPosition();
     if (!objectivePos) {
       this.ikTargetConnector.visible = false;
+      this.updateDebugVisuals(objectiveOriginPos, null);
       return;
     }
 
@@ -403,6 +496,7 @@ class ZooApp {
     this.ikTargetConnector.position.copy(this.ikConnectorMid);
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
+    this.updateDebugVisuals(objectiveOriginPos, objectivePos);
   }
 
   async setupIKDemo(robotPath) {
@@ -463,8 +557,8 @@ class ZooApp {
     if (this.controls) this.controls.enabled = true;
     if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
     if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
-      if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
     if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
+    if (this.debugGroup) this.debugGroup.visible = false;
   }
 
   applyIKSolution(solution) {
@@ -496,6 +590,7 @@ class ZooApp {
       y: targetModel.y,
       z: targetModel.z,
     };
+    this.ikSentTargetPosition.copy(targetModel).applyQuaternion(this.ikModelToWorldQuat);
     if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
     this.ikSolveInFlight = true;
