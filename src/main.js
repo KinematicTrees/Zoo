@@ -55,17 +55,19 @@ class ZooApp {
     this.loadSeq = 0;
 
     // IK demo/session state (kinematics_go backend)
+    this.currentRobotPath = '';
     this.ikSessionId = null;
     this.ikDemoActive = false;
     this.ikObjectiveName = 'eyelid_lh';
     this.ikRootName = 'body';
+    this.ikEffectorNames = [];
+    this.ikUi = { objective: this.ikObjectiveName };
     this.ikTargetPosition = new THREE.Vector3();
     this.ikLastSolveMs = 0;
     this.ikSolveIntervalMs = 80;
     this.ikSolveInFlight = false;
     this.ikTargetMarker = null;
     this.ikTargetConnector = null;
-    this.ikObjectiveMarker = null;
     this.ikDraggingTarget = false;
     this.ikDragPlane = new THREE.Plane();
     this.ikDragPoint = new THREE.Vector3();
@@ -79,19 +81,7 @@ class ZooApp {
     this.ikWorldToModelQuat = new THREE.Quaternion();
     this.ikModelToWorldQuat = new THREE.Quaternion();
     this.ikModelToWorldPos = new THREE.Vector3();
-    this.ikSentTargetPosition = new THREE.Vector3();
     this.ikObjectivePositionModel = new THREE.Vector3();
-
-    // Visual debug helpers (always-on for this investigation)
-    this.debugGroup = null;
-    this.debugObjectiveOriginMarker = null;
-    this.debugObjectiveVisualMarker = null;
-    this.debugSentTargetMarker = null;
-    this.debugWorldAxes = null;
-    this.debugObjectiveAxes = null;
-    this.debugLineOriginToVisual = null;
-    this.debugLineVisualToTarget = null;
-    this.debugLineOriginToSent = null;
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
@@ -161,6 +151,7 @@ class ZooApp {
     if (!robotPath) return;
 
     const mySeq = ++this.loadSeq;
+    this.currentRobotPath = robotPath;
     this.setStatus(`Loading ${robotPath}...`);
 
     try {
@@ -179,6 +170,11 @@ class ZooApp {
       this.refreshIKFrameTransforms();
 
       this.selection = -1;
+      this.ikEffectorNames = this.getEffectorLinkNames();
+      if (!this.ikEffectorNames.includes(this.ikObjectiveName)) {
+        this.ikObjectiveName = this.ikEffectorNames[0] || this.ikObjectiveName;
+      }
+      this.ikUi.objective = this.ikObjectiveName;
       this.rebuildJointGui(tree);
 
       // Meshes are async; don't block init/hot-swap on them.
@@ -326,22 +322,55 @@ class ZooApp {
           this.render();
         });
     }
+
+    const ikFolder = this.gui.addFolder('IK');
+    if (this.ikEffectorNames.length > 0) {
+      ikFolder
+        .add(this.ikUi, 'objective', this.ikEffectorNames)
+        .name('Effector')
+        .onChange(async (value) => {
+          await this.setIKObjectiveLink(value);
+        });
+    } else {
+      ikFolder.add({ info: 'No effector tags in tree.json' }, 'info').name('Effector').disable();
+    }
+  }
+
+  getEffectorLinkNames() {
+    if (!this.tree?.Links?.length) return [];
+    const tags = this.tree?.Tags;
+    if (!tags || typeof tags !== 'object') return [];
+
+    const candidates = [];
+    for (const [k, v] of Object.entries(tags)) {
+      const key = String(k || '').toLowerCase();
+      if (!key.includes('effec') && !key.includes('effect') && !key.includes('efec')) continue;
+      if (Array.isArray(v)) candidates.push(...v);
+      else if (typeof v === 'string' && v.trim()) candidates.push(v.trim());
+    }
+
+    const linkNames = new Set(this.tree.Links.map((l) => l?.name).filter(Boolean));
+    const unique = [];
+    for (const c of candidates) {
+      const name = String(c || '').trim();
+      if (!name || !linkNames.has(name)) continue;
+      if (!unique.includes(name)) unique.push(name);
+    }
+    return unique;
+  }
+
+  async setIKObjectiveLink(linkName) {
+    if (!linkName || linkName === this.ikObjectiveName) return;
+    this.ikObjectiveName = linkName;
+    this.ikUi.objective = linkName;
+    if (!this.currentRobotPath) return;
+    await this.setupIKDemo(this.currentRobotPath);
   }
 
   normaliseRobotAbsoluteTreePath(robotPath) {
     const normalized = this.normaliseRobotPath(robotPath);
     return `/home/stuart/KinematicTrees/Zoo/public/${normalized}tree.json`;
   }
-
-  getLinkWorldPositionByName(linkName) {
-    if (!this.tree || !linkName) return null;
-    const idx = this.tree.Links.findIndex((l) => l?.name === linkName);
-    if (idx < 0) return null;
-    const out = new THREE.Vector3();
-    this.tree.Links[idx].origin.getWorldPosition(out);
-    return out;
-  }
-
 
   refreshIKFrameTransforms() {
     if (!this.tree?.Root) {
@@ -393,85 +422,6 @@ class ZooApp {
     return out;
   }
 
-  ensureDebugVisuals() {
-    if (this.debugGroup) return;
-
-    const mkMarker = (r, color, name) => {
-      const g = new THREE.SphereGeometry(r, 12, 12);
-      const m = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.25 });
-      const mesh = new THREE.Mesh(g, m);
-      mesh.name = name;
-      this.debugGroup.add(mesh);
-      return mesh;
-    };
-
-    const mkLine = (color, name) => {
-      const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-      const m = new THREE.LineBasicMaterial({ color });
-      const line = new THREE.Line(g, m);
-      line.name = name;
-      this.debugGroup.add(line);
-      return line;
-    };
-
-    this.debugGroup = new THREE.Group();
-    this.debugGroup.name = 'ik-debug-group';
-    this.scene.add(this.debugGroup);
-
-    this.debugWorldAxes = new THREE.AxesHelper(0.08);
-    this.debugWorldAxes.name = 'ik-debug-world-axes';
-    this.debugGroup.add(this.debugWorldAxes);
-
-    this.debugObjectiveAxes = new THREE.AxesHelper(0.06);
-    this.debugObjectiveAxes.name = 'ik-debug-objective-axes';
-    this.debugGroup.add(this.debugObjectiveAxes);
-
-    this.debugObjectiveOriginMarker = mkMarker(0.008, 0xff3344, 'ik-debug-objective-origin'); // red
-    this.debugObjectiveVisualMarker = mkMarker(0.010, 0x33aaff, 'ik-debug-objective-visual'); // blue
-    this.debugSentTargetMarker = mkMarker(0.009, 0xaa44ff, 'ik-debug-target-sent'); // magenta
-
-    this.debugLineOriginToVisual = mkLine(0xff8844, 'ik-debug-line-origin-visual');
-    this.debugLineVisualToTarget = mkLine(0x22ff88, 'ik-debug-line-visual-target');
-    this.debugLineOriginToSent = mkLine(0xbb66ff, 'ik-debug-line-origin-sent');
-  }
-
-  updateDebugVisuals(objectiveOriginPos, objectiveVisualPos, connectorStartPos = null, connectorEndPos = null) {
-    if (!this.ikDemoActive) return;
-    this.ensureDebugVisuals();
-    if (!this.debugGroup) return;
-
-    const hasOrigin = !!objectiveOriginPos;
-    const hasVisual = !!objectiveVisualPos;
-
-    if (this.debugObjectiveOriginMarker) this.debugObjectiveOriginMarker.visible = hasOrigin;
-    if (this.debugObjectiveVisualMarker) this.debugObjectiveVisualMarker.visible = hasVisual;
-    if (this.debugSentTargetMarker) this.debugSentTargetMarker.visible = true;
-
-    if (hasOrigin) {
-      this.debugObjectiveOriginMarker.position.copy(objectiveOriginPos);
-      this.debugObjectiveAxes.visible = true;
-      this.debugObjectiveAxes.position.copy(objectiveOriginPos);
-    } else {
-      this.debugObjectiveAxes.visible = false;
-    }
-
-    if (hasVisual) this.debugObjectiveVisualMarker.position.copy(objectiveVisualPos);
-    this.debugSentTargetMarker.position.copy(this.ikSentTargetPosition);
-
-    const setLine = (line, a, b, visible) => {
-      if (!line) return;
-      line.visible = !!visible;
-      if (!visible) return;
-      line.geometry.setFromPoints([a, b]);
-      line.geometry.computeBoundingSphere();
-    };
-
-    const hasConnector = !!connectorStartPos && !!connectorEndPos;
-    setLine(this.debugLineOriginToVisual, objectiveOriginPos, objectiveVisualPos, hasOrigin && hasVisual);
-    setLine(this.debugLineVisualToTarget, hasConnector ? connectorStartPos : objectiveVisualPos, hasConnector ? connectorEndPos : this.ikTargetPosition, hasConnector || hasVisual);
-    setLine(this.debugLineOriginToSent, objectiveOriginPos, this.ikSentTargetPosition, hasOrigin);
-  }
-
   ensureIKTargetMarker() {
     if (this.ikTargetMarker) return;
     const g = new THREE.SphereGeometry(0.02, 18, 18);
@@ -491,36 +441,20 @@ class ZooApp {
     this.scene.add(this.ikTargetConnector);
   }
 
-  ensureIKObjectiveMarker() {
-    if (this.ikObjectiveMarker) return;
-    const g = new THREE.SphereGeometry(0.012, 14, 14);
-    const m = new THREE.MeshStandardMaterial({ color: 0x44aaff, emissive: 0x001133, emissiveIntensity: 0.55 });
-    this.ikObjectiveMarker = new THREE.Mesh(g, m);
-    this.ikObjectiveMarker.name = 'ik-objective-marker';
-    this.scene.add(this.ikObjectiveMarker);
-  }
-
   updateIKTargetConnector() {
     if (!this.ikDemoActive || !this.ikTargetMarker?.visible || !this.ikTargetConnector) {
       if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
-      if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
-      if (this.debugGroup) this.debugGroup.visible = false;
       return;
     }
-    if (this.debugGroup) this.debugGroup.visible = true;
 
     this.refreshIKFrameTransforms();
-    const objectiveOriginPos = this.getLinkWorldPositionByName(this.ikObjectiveName);
-    const objectiveVisualPos = this.getObjectiveAnchorWorldPosition();
     const objectivePos = this.getSolverAnchoredObjectiveWorldPosition();
     if (!objectivePos) {
       this.ikTargetConnector.visible = false;
-      this.updateDebugVisuals(objectiveOriginPos, null);
       return;
     }
 
     this.ikConnectorStart.copy(objectivePos);
-    if (this.ikObjectiveMarker) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
     this.ikConnectorEnd.copy(this.ikTargetPosition);
     this.ikConnectorDir.subVectors(this.ikConnectorEnd, this.ikConnectorStart);
 
@@ -536,7 +470,6 @@ class ZooApp {
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
 
-    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos, this.ikConnectorStart, this.ikConnectorEnd);
   }
 
   async setupIKDemo(robotPath) {
@@ -576,12 +509,10 @@ class ZooApp {
       this.refreshIKFrameTransforms();
       this.ikObjectivePositionModel.copy(this.ikWorldToModel(objectivePos));
       this.ikTargetPosition.copy(objectivePos).add(new THREE.Vector3(0.12, 0, 0.06));
-      this.ikSentTargetPosition.copy(this.ikTargetPosition);
       this.ikLastSolveMs = 0;
       this.ikDemoActive = true;
       this.ensureIKTargetMarker();
       this.ensureIKTargetConnector();
-      this.ensureIKObjectiveMarker();
       this.ikTargetMarker.visible = true;
       this.ikTargetMarker.position.copy(this.ikTargetPosition);
       this.updateIKTargetConnector();
@@ -600,8 +531,6 @@ class ZooApp {
     if (this.controls) this.controls.enabled = true;
     if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
     if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
-    if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
-    if (this.debugGroup) this.debugGroup.visible = false;
   }
 
   applyIKSolution(solution) {
@@ -642,7 +571,6 @@ class ZooApp {
       y: targetModel.y,
       z: targetModel.z,
     };
-    this.ikSentTargetPosition.copy(this.ikModelToWorld(targetModel));
     if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
     this.ikSolveInFlight = true;

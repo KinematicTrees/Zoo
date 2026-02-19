@@ -90,6 +90,7 @@ class Tree {
         this.Root = new Object3D().rotateX(-Math.PI / 2)
         this.Joints = [];
         this.Links = [];
+        this.Tags = json.Tags || {};
         this.RootLinkID = -1
         this.RootJointIDs = []
         this.RootLink = "unidentified root"
