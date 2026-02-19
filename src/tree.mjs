@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { ColladaLoader } from "three/addons";
+import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { Object3D, Vector3 } from "three";
 
 const loader = new ColladaLoader();
+const stlLoader = new STLLoader();
 
 
 function ensureVec3(arr, label = '') {
@@ -227,6 +229,28 @@ function loadColladaPatched(url) {
         });
 }
 
+function loadSTLAsScene(url) {
+    return fetch(url)
+        .then((r) => {
+            if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`);
+            return r.arrayBuffer();
+        })
+        .then((buf) => {
+            const geometry = stlLoader.parse(buf);
+            const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
+            const group = new THREE.Group();
+            group.add(mesh);
+            return { scene: group };
+        });
+}
+
+function loadMeshAsset(url) {
+    const clean = String(url || '').split('?')[0].toLowerCase();
+    if (clean.endsWith('.stl')) return loadSTLAsScene(url);
+    if (clean.endsWith('.dae')) return loadColladaPatched(url);
+    return Promise.reject(new Error(`Unsupported mesh format for ${url}`));
+}
+
 export function loadRobot(url, meshDir, color) {
     return fetch(url).then((response) => {
         return response.json()
@@ -237,7 +261,7 @@ export function loadRobot(url, meshDir, color) {
         for (let i = 0; i < tree.Links.length; i++) {
             if (tree.Links[i].hasMesh) {
                 promises.push(
-                    loadColladaPatched(tree.Links[i].meshfile)
+                    loadMeshAsset(tree.Links[i].meshfile)
                         .then((mesh) => {
                             formatMesh(mesh, color, i)
                             tree.Links[i].origin.add(mesh.scene);
