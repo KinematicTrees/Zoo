@@ -71,10 +71,8 @@ class Link {
         const rot = ensureVec3(v0.rot, `${this.name}.visual.rot`);
 
         this.origin = new Object3D()
-        this.visual = new Object3D()
-        this.visual.position.set(pos[0], pos[1], pos[2]);
-        this.visual.rotation.set(rot[0], rot[1], rot[2]);
-        this.origin.add(this.visual)
+        this.origin.position.set(pos[0], pos[1], pos[2]);
+        this.origin.rotation.set(rot[0], rot[1], rot[2]);
         this.Children = []
         this.ChildrenID = []
         this.ParentID = -1;
@@ -241,7 +239,7 @@ export function loadRobot(url, meshDir, color) {
                     loadColladaPatched(tree.Links[i].meshfile)
                         .then((mesh) => {
                             formatMesh(mesh, color, i)
-                            tree.Links[i].visual.add(mesh.scene);
+                            tree.Links[i].origin.add(mesh.scene);
                         })
                 )
             }

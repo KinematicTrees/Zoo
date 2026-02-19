@@ -331,13 +331,11 @@ class ZooApp {
   getObjectiveAnchorWorldPosition() {
     const idx = this.tree?.Links?.findIndex((l) => l?.name === this.ikObjectiveName);
     if (idx == null || idx < 0) return null;
-    const link = this.tree.Links[idx];
-    const linkOrigin = link?.origin;
+    const linkOrigin = this.tree.Links[idx].origin;
     if (!linkOrigin) return null;
 
     // Prefer visual anchor (mesh bounds center) for connector so it matches what user sees.
-    const visualNode = link?.visual || linkOrigin;
-    const box = new THREE.Box3().setFromObject(visualNode);
+    const box = new THREE.Box3().setFromObject(linkOrigin);
     if (!box.isEmpty()) {
       const center = new THREE.Vector3();
       box.getCenter(center);
