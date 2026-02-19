@@ -87,7 +87,7 @@ class Link {
 class Tree {
     constructor(json, meshDir) {
 
-        this.Root = new Object3D().rotateX(-Math.PI / 2)
+        this.Root = new Object3D()
         this.Joints = [];
         this.Links = [];
         this.RootLinkID = -1
@@ -269,7 +269,6 @@ function formatMesh(mesh, color, id) {
             o.geometry.computeVertexNormals();
         }
     });
-    mesh.scene.rotateX(Math.PI / 2);
 }
 
 

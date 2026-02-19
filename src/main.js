@@ -42,6 +42,7 @@ class ZooApp {
     this.light = null;
     this.directionalLight = null;
 
+    this.visualRoot = null;
     this.robotGroup = null;
     this.tree = null;
 
@@ -74,10 +75,6 @@ class ZooApp {
     this.ikConnectorMid = new THREE.Vector3();
     this.ikConnectorDir = new THREE.Vector3();
     this.ikUpAxis = new THREE.Vector3(0, 1, 0);
-    // Viewer root is rotated -90deg about X in tree.mjs; IK service expects unrotated tree frame.
-    this.ikWorldToModelQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
-    this.ikModelToWorldQuat = this.ikWorldToModelQuat.clone().invert();
-
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
     this._onMouseUp = () => this.onMouseUp();
@@ -108,10 +105,15 @@ class ZooApp {
     this.directionalLight.target.position.set(0, 0, 0);
     this.scene.add(this.directionalLight);
 
+    // VISUAL ROOT GROUP: single place for any global visual transform.
+    this.visualRoot = new THREE.Group();
+    this.visualRoot.name = 'visual-root';
+    this.scene.add(this.visualRoot);
+
     // ROBOT ROOT GROUP (so we can hot-swap cleanly)
     this.robotGroup = new THREE.Group();
     this.robotGroup.name = 'robot-root';
-    this.scene.add(this.robotGroup);
+    this.visualRoot.add(this.robotGroup);
 
     // INPUT
     this.renderer.domElement.addEventListener('mousemove', this._onMouseMove);
@@ -351,7 +353,7 @@ class ZooApp {
     const m = new THREE.MeshStandardMaterial({ color: 0xffd166, emissive: 0x553300, emissiveIntensity: 0.5 });
     this.ikTargetMarker = new THREE.Mesh(g, m);
     this.ikTargetMarker.name = 'ik-target-marker';
-    this.scene.add(this.ikTargetMarker);
+    this.visualRoot.add(this.ikTargetMarker);
   }
 
   ensureIKTargetConnector() {
@@ -361,7 +363,7 @@ class ZooApp {
     const m = new THREE.MeshStandardMaterial({ color: 0x66ccff, emissive: 0x112233, emissiveIntensity: 0.35 });
     this.ikTargetConnector = new THREE.Mesh(g, m);
     this.ikTargetConnector.name = 'ik-target-connector';
-    this.scene.add(this.ikTargetConnector);
+    this.visualRoot.add(this.ikTargetConnector);
   }
 
   ensureIKObjectiveMarker() {
@@ -370,14 +372,13 @@ class ZooApp {
     const m = new THREE.MeshStandardMaterial({ color: 0x44aaff, emissive: 0x001133, emissiveIntensity: 0.55 });
     this.ikObjectiveMarker = new THREE.Mesh(g, m);
     this.ikObjectiveMarker.name = 'ik-objective-marker';
-    this.scene.add(this.ikObjectiveMarker);
+    this.visualRoot.add(this.ikObjectiveMarker);
   }
 
   updateIKTargetConnector() {
     if (!this.ikDemoActive || !this.ikTargetMarker?.visible || !this.ikTargetConnector) {
       if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
       if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
-    if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
       return;
     }
 
@@ -464,7 +465,6 @@ class ZooApp {
     if (this.ikTargetMarker) this.ikTargetMarker.visible = false;
     if (this.ikTargetConnector) this.ikTargetConnector.visible = false;
       if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
-    if (this.ikObjectiveMarker) this.ikObjectiveMarker.visible = false;
   }
 
   applyIKSolution(solution) {
@@ -477,11 +477,6 @@ class ZooApp {
     }
   }
 
-  ikWorldToModel(v) {
-    // only rotation needed (no root translation currently)
-    return v.clone().applyQuaternion(this.ikWorldToModelQuat);
-  }
-
   async tickIKDemo() {
     if (!this.ikDemoActive || !this.ikSessionId || this.ikSolveInFlight) return;
 
@@ -489,12 +484,10 @@ class ZooApp {
     if (now - this.ikLastSolveMs < this.ikSolveIntervalMs) return;
     this.ikLastSolveMs = now;
 
-    const targetWorld = this.ikTargetPosition;
-    const targetModel = this.ikWorldToModel(targetWorld);
     const target = {
-      x: targetModel.x,
-      y: targetModel.y,
-      z: targetModel.z,
+      x: this.ikTargetPosition.x,
+      y: this.ikTargetPosition.y,
+      z: this.ikTargetPosition.z,
     };
     if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
