@@ -74,9 +74,10 @@ class ZooApp {
     this.ikConnectorMid = new THREE.Vector3();
     this.ikConnectorDir = new THREE.Vector3();
     this.ikUpAxis = new THREE.Vector3(0, 1, 0);
-    // Viewer root is rotated -90deg about X in tree.mjs; IK service expects unrotated tree frame.
-    this.ikWorldToModelQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
-    this.ikModelToWorldQuat = this.ikWorldToModelQuat.clone().invert();
+    // IK frame is canonical; visual world transform is derived from tree root transform.
+    // Defaults to identity until a tree is loaded, then refreshed from this.tree.Root world quaternion.
+    this.ikWorldToModelQuat = new THREE.Quaternion();
+    this.ikModelToWorldQuat = new THREE.Quaternion();
     this.ikSentTargetPosition = new THREE.Vector3();
     this.ikObjectivePositionModel = new THREE.Vector3();
     this.ikObjectiveAnchorOffsetModel = new THREE.Vector3();
@@ -176,6 +177,7 @@ class ZooApp {
       this.clearRobot();
       this.tree = tree;
       this.robotGroup.add(tree.Root);
+      this.refreshIKFrameTransforms();
 
       this.selection = -1;
       this.rebuildJointGui(tree);
@@ -341,14 +343,42 @@ class ZooApp {
     return out;
   }
 
-  getObjectiveAnchorWorldPosition() {
-    const idx = this.tree?.Links?.findIndex((l) => l?.name === this.ikObjectiveName);
-    if (idx == null || idx < 0) return null;
-    const linkOrigin = this.tree.Links[idx].origin;
-    if (!linkOrigin) return null;
 
-    // Prefer visual anchor (mesh bounds center) for connector so it matches what user sees.
-    const box = new THREE.Box3().setFromObject(linkOrigin);
+  refreshIKFrameTransforms() {
+    if (!this.tree?.Root) {
+      this.ikModelToWorldQuat.identity();
+      this.ikWorldToModelQuat.identity();
+      return;
+    }
+    const rootWorldQuat = new THREE.Quaternion();
+    this.tree.Root.getWorldQuaternion(rootWorldQuat);
+    this.ikModelToWorldQuat.copy(rootWorldQuat);
+    this.ikWorldToModelQuat.copy(rootWorldQuat).invert();
+  }
+
+  getObjectiveLinkNode() {
+    const idx = this.tree?.Links?.findIndex((l) => l?.name === this.ikObjectiveName);
+    if (idx == null || idx < 0) return { idx: -1, linkOrigin: null };
+    return { idx, linkOrigin: this.tree.Links[idx]?.origin || null };
+  }
+
+  getObjectiveAnchorWorldPosition() {
+    const { idx, linkOrigin } = this.getObjectiveLinkNode();
+    if (idx < 0 || !linkOrigin) return null;
+
+    // Visual-only post-hoc anchor: use objective link meshes only (exclude unrelated subtree bounds).
+    const box = new THREE.Box3();
+    box.makeEmpty();
+    let meshCount = 0;
+    linkOrigin.traverse((o) => {
+      if (o?.isMesh && o.userData?.index === idx) {
+        box.expandByObject(o);
+        meshCount += 1;
+      }
+    });
+    if (meshCount === 0) {
+      box.setFromObject(linkOrigin);
+    }
     if (!box.isEmpty()) {
       const center = new THREE.Vector3();
       box.getCenter(center);
