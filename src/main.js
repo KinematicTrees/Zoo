@@ -92,8 +92,6 @@ class ZooApp {
     this.debugLineOriginToVisual = null;
     this.debugLineVisualToTarget = null;
     this.debugLineOriginToSent = null;
-    this.debugCylinderEndA = new THREE.Vector3();
-    this.debugCylinderEndB = new THREE.Vector3();
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
@@ -437,7 +435,7 @@ class ZooApp {
 
     const hasConnector = !!connectorStartPos && !!connectorEndPos;
     setLine(this.debugLineOriginToVisual, objectiveOriginPos, objectiveVisualPos, hasOrigin && hasVisual);
-    setLine(this.debugLineVisualToTarget, hasConnector ? connectorStartPos : objectiveVisualPos, hasConnector ? connectorEndPos : this.ikSentTargetPosition, hasConnector || hasVisual);
+    setLine(this.debugLineVisualToTarget, hasConnector ? connectorStartPos : objectiveVisualPos, hasConnector ? connectorEndPos : this.ikTargetPosition, hasConnector || hasVisual);
     setLine(this.debugLineOriginToSent, objectiveOriginPos, this.ikSentTargetPosition, hasOrigin);
   }
 
@@ -489,7 +487,7 @@ class ZooApp {
 
     this.ikConnectorStart.copy(objectivePos);
     if (this.ikObjectiveMarker) { this.ikObjectiveMarker.visible = true; this.ikObjectiveMarker.position.copy(objectivePos); }
-    this.ikConnectorEnd.copy(this.ikSentTargetPosition);
+    this.ikConnectorEnd.copy(this.ikTargetPosition);
     this.ikConnectorDir.subVectors(this.ikConnectorEnd, this.ikConnectorStart);
 
     const length = this.ikConnectorDir.length();
@@ -504,13 +502,7 @@ class ZooApp {
     this.ikTargetConnector.scale.set(1, length, 1);
     this.ikTargetConnector.quaternion.setFromUnitVectors(this.ikUpAxis, this.ikConnectorDir.normalize());
 
-    // Derive debug endpoints from the rendered cylinder transform itself
-    // so the green line is guaranteed to represent the exact visual axis.
-    this.ikTargetConnector.updateMatrixWorld(true);
-    this.debugCylinderEndA.set(0, -0.5, 0).applyMatrix4(this.ikTargetConnector.matrixWorld);
-    this.debugCylinderEndB.set(0, 0.5, 0).applyMatrix4(this.ikTargetConnector.matrixWorld);
-
-    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos, this.debugCylinderEndA, this.debugCylinderEndB);
+    this.updateDebugVisuals(objectiveOriginPos, objectiveVisualPos || objectivePos, this.ikConnectorStart, this.ikConnectorEnd);
   }
 
   async setupIKDemo(robotPath) {
