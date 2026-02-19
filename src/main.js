@@ -57,7 +57,7 @@ class ZooApp {
     // IK demo/session state (kinematics_go backend)
     this.ikSessionId = null;
     this.ikDemoActive = false;
-    this.ikObjectiveName = 'head';
+    this.ikObjectiveName = 'eyelid_lh';
     this.ikRootName = 'body';
     this.ikTargetPosition = new THREE.Vector3();
     this.ikLastSolveMs = 0;
@@ -73,6 +73,9 @@ class ZooApp {
     this.ikConnectorMid = new THREE.Vector3();
     this.ikConnectorDir = new THREE.Vector3();
     this.ikUpAxis = new THREE.Vector3(0, 1, 0);
+    // Viewer root is rotated -90deg about X in tree.mjs; IK service expects unrotated tree frame.
+    this.ikWorldToModelQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+    this.ikModelToWorldQuat = this.ikWorldToModelQuat.clone().invert();
 
     this._onMouseMove = (event) => this.onMouseMove(event);
     this._onMouseDown = (event) => this.onMouseDown(event);
@@ -438,6 +441,11 @@ class ZooApp {
     }
   }
 
+  ikWorldToModel(v) {
+    // only rotation needed (no root translation currently)
+    return v.clone().applyQuaternion(this.ikWorldToModelQuat);
+  }
+
   async tickIKDemo() {
     if (!this.ikDemoActive || !this.ikSessionId || this.ikSolveInFlight) return;
 
@@ -445,10 +453,12 @@ class ZooApp {
     if (now - this.ikLastSolveMs < this.ikSolveIntervalMs) return;
     this.ikLastSolveMs = now;
 
+    const targetWorld = this.ikTargetPosition;
+    const targetModel = this.ikWorldToModel(targetWorld);
     const target = {
-      x: this.ikTargetPosition.x,
-      y: this.ikTargetPosition.y,
-      z: this.ikTargetPosition.z,
+      x: targetModel.x,
+      y: targetModel.y,
+      z: targetModel.z,
     };
     if (this.ikTargetMarker) this.ikTargetMarker.position.copy(this.ikTargetPosition);
 
