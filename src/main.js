@@ -61,8 +61,7 @@ class ZooApp {
     this.ikObjectiveName = 'eyelid_lh';
     this.ikRootName = 'body';
     this.ikEffectorNames = [];
-    this.ikUi = { objective: this.ikObjectiveName, stlPreset: (window.__zooStlPreset || 'rx+90') };
-    window.__zooStlPreset = this.ikUi.stlPreset;
+    this.ikUi = { objective: this.ikObjectiveName };
     this.ikTargetPosition = new THREE.Vector3();
     this.ikLastSolveMs = 0;
     this.ikSolveIntervalMs = 80;
@@ -336,13 +335,6 @@ class ZooApp {
       ikFolder.add({ info: 'No effector tags in tree.json' }, 'info').name('Effector').disable();
     }
 
-    ikFolder
-      .add(this.ikUi, 'stlPreset', ['rx+90', 'none', 'rx-90', 'rx+180'])
-      .name('STL visual')
-      .onChange(async (value) => {
-        window.__zooStlPreset = value;
-        if (this.currentRobotPath) await this.loadRobot(this.currentRobotPath);
-      });
   }
 
   getEffectorLinkNames() {
