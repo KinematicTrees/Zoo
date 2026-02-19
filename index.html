@@ -55,6 +55,14 @@
     </select>
     <button id="reloadBtn" type="button">Reload</button>
 
+    <label for="fixtureSelect">Fixture</label>
+    <select id="fixtureSelect">
+        <option value="dae">dae</option>
+        <option value="stl">stl</option>
+        <option value="unity">unity</option>
+    </select>
+    <button id="loadFixtureBtn" type="button">Load Fixture</button>
+
     <span>|</span>
 
     <label for="centralSelect">Central</label>
@@ -115,6 +123,8 @@
 
     const select = document.getElementById('robotSelect');
     const reloadBtn = document.getElementById('reloadBtn');
+    const fixtureSelect = document.getElementById('fixtureSelect');
+    const loadFixtureBtn = document.getElementById('loadFixtureBtn');
     const processBtn = document.getElementById('processBtn');
     const submitCentralBtn = document.getElementById('submitCentralBtn');
     const uploadFolder = document.getElementById('uploadFolder');
@@ -135,6 +145,24 @@
         const app = await appPromise;
         await app.loadRobot(select.value);
     };
+
+
+    async function loadFixture(format) {
+        const chosen = (format || fixtureSelect.value || 'dae').toLowerCase();
+        setStatus(`Loading fixture: ${chosen}...`);
+        const res = await fetch('http://localhost:8080/api/fixtures/load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ format: chosen }),
+        });
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(txt || `fixture load failed (${res.status})`);
+        }
+        select.value = 'uploaded/';
+        await loadSelected();
+        setStatus(`Fixture loaded: ${chosen}`);
+    }
 
     async function processUploadedFolder() {
         const files = uploadFolder.files;
@@ -243,6 +271,15 @@
 
     select.addEventListener('change', loadSelected);
     reloadBtn.addEventListener('click', loadSelected);
+
+    loadFixtureBtn.addEventListener('click', async () => {
+        try {
+            await loadFixture(fixtureSelect.value);
+        } catch (e) {
+            console.error(e);
+            setStatus(`Fixture load failed: ${e.message || e}`);
+        }
+    });
 
     processBtn.addEventListener('click', async () => {
         try {
